@@ -1,0 +1,26 @@
+node_modules/
+dist/
+build/
+.turbo/
+*.log
+.env
+.env.local
+.DS_Store
+coverage/
+playwright-report/
+test-results/
+.vite/
+
+# dmtools pipeline artifacts
+.dmtools/input/
+.dmtools/outputs/
+/outputs/
+.dmtools/cacheBasicJiraClient/
+.claude-session-id
+
+.dmtools/.dmtools-logs/
+.dmtools-logs/
+__pycache__/
+*.pyc
+dmtools.env
+dmtools-local.env

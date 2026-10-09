@@ -1,0 +1,103 @@
+name: SM Agent
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: sm-agent
+  # Keep false — true would cancel an *in-progress* dmtools run mid-cycle
+  # (GitHub Actions cancels the running job, not just queued ones), which
+  # can leave a ticket half-processed (lock label added, status never
+  # moved). Runs still queue; the staleness check below thins them out
+  # instead.
+  cancel-in-progress: false
+
+jobs:
+  sm-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Manual and API dispatches use the default branch, but pin it
+          # explicitly so SM always runs sm.json from main.
+          ref: main
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Cache DMTools
+        id: cache-dmtools
+        uses: actions/cache@v4
+        with:
+          path: ~/.dmtools
+          key: dmtools-release-latest-${{ runner.os }}
+
+      - name: Install DMTools CLI
+        if: steps.cache-dmtools.outputs.cache-hit != 'true'
+        run: |
+          curl -fsSL https://github.com/epam/dm.ai/releases/latest/download/install.sh | bash
+
+      - name: Add DMTools to PATH
+        run: echo "$HOME/.dmtools/bin" >> "$GITHUB_PATH"
+
+      - name: Run SM agent
+        working-directory: .dmtools
+        env:
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_BASE_PATH: ${{ vars.JIRA_BASE_PATH }}
+          # JIRA_AUTH_TYPE intentionally omitted — dmtools 1.7.254 returns 404
+          # on every Jira Cloud call when it's set to basic or bearer, even
+          # with a curl-verified working token. Leaving it unset works.
+          # SOURCE_GITHUB_TOKEN needs workflow-dispatch rights (a PAT with `repo` +
+          # `workflow` scope) since sm.json rules trigger ai-teammate.yml via the
+          # GitHub Actions API — the default GITHUB_TOKEN cannot dispatch workflows.
+          SOURCE_GITHUB_TOKEN: ${{ secrets.GH_PROJECT_TOKEN }}
+          SOURCE_GITHUB_WORKSPACE: kejno
+          SOURCE_GITHUB_REPOSITORY: en-tutor
+          DMTOOLS_INTEGRATIONS: 'jira,github,cli,file'
+          # GraalJS cannot read OS environment variables directly. The run
+          # step below therefore passes this repo variable to smAgent.js as a
+          # jobParams.aiAgentProvider JSON override. This keeps the repo
+          # variable as the single source of truth for provider selection.
+          AI_AGENT_PROVIDER: ${{ vars.AI_AGENT_PROVIDER }}
+        run: |
+          set -o pipefail
+          provider_override="$(jq -cn \
+            --arg provider "${AI_AGENT_PROVIDER:-claude-code}" \
+            '{params:{jobParams:{aiAgentProvider:$provider}}}')"
+          dmtools run agents/sm.json "${provider_override}" \
+            --ciRunUrl "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            | tee sm-output.log
+          if grep -Eq '"success"[[:space:]]*:[[:space:]]*false' sm-output.log; then
+            echo "::error::SM Agent reported a rule failure; see sm-output.log above." >&2
+            exit 1
+          fi
+
+      - name: Re-dispatch if a local-only status move needs another pass
+        if: always()
+        working-directory: .dmtools
+        env:
+          GH_TOKEN: ${{ secrets.GH_PROJECT_TOKEN }}
+        run: |
+          set -euo pipefail
+          # A rule with localExecution:true (e.g. unblockResolvedDependencies.js
+          # moving a Story out of Blocked into Backlog) changes a ticket's status
+          # without dispatching an AI Teammate run — so no AI coordinator will
+          # bring SM back around to act on the new status (e.g. "Backlog Stories
+          # → ask questions" for that same ticket, which this pass's JQL read
+          # already missed). Re-dispatch ourselves once so the next pass picks
+          # it up. smAgent.js sets
+          # needsAnotherPass:true in its JSON result when this happens.
+          if [ -f sm-output.log ] && grep -Eq '"needsAnotherPass"[[:space:]]*:[[:space:]]*true' sm-output.log; then
+            echo "Local status change needs another pass — re-dispatching SM Agent."
+            gh workflow run sm-agent.yml --repo "${{ github.repository }}"
+          fi
