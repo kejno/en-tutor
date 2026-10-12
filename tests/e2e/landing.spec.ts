@@ -20,3 +20,14 @@ test('visitor reaches the final CTA and sees a local confirmation', async ({ pag
   await expect(page.getByRole('status')).toContainText('Заявка сохранена локально');
   await expect(page.getByRole('status')).toContainText('Данные не отправляются на сервер');
 });
+
+test('header and hero trial CTAs expose the same action', async ({ page }) => {
+  await page.goto('/');
+
+  const status = page.getByRole('status');
+  await page.getByTestId('header-trial').click();
+  await expect(status).toContainText('Пробный период скоро будет доступен');
+
+  await page.getByTestId('trial-cta').click();
+  await expect(status).toContainText('Пробный период скоро будет доступен');
+});
