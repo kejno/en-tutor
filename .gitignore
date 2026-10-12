@@ -20,6 +20,7 @@ test-results/
 
 .dmtools/.dmtools-logs/
 .dmtools-logs/
+.dmtools/.gitignore
 __pycache__/
 *.pyc
 dmtools.env

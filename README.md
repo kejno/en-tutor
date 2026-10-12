@@ -1,27 +1,22 @@
 # English Tutor
 
-## Application
+Initial FluentAI landing page for the English Tutor project.
 
-The landing page is a Vite-powered vanilla TypeScript application. It uses
-Vitest for unit tests and Playwright for browser integration tests.
+## Development
 
-### Local development
+The application uses React, TypeScript and Vite. Unit tests run with Vitest;
+the browser path is covered by Playwright.
 
 ```bash
 npm install
 npm run dev
-```
-
-### Verification
-
-```bash
 npm test
 npm run test:e2e
 npm run build
 ```
 
-Initial dmtools automation setup for the English Tutor project.
-Application requirements and implementation stack will be defined in Jira.
+The email forms intentionally show a local confirmation only. No address is
+sent or stored because a server API is not part of this story.
 
 - Jira: [English Tutor (ET)](https://kejno.atlassian.net/jira/software/c/projects/ET/boards/100)
 - Repository: kejno/en-tutor
