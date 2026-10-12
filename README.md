@@ -1,5 +1,25 @@
 # English Tutor
 
+## Application
+
+The landing page is a Vite-powered vanilla TypeScript application. It uses
+Vitest for unit tests and Playwright for browser integration tests.
+
+### Local development
+
+```bash
+npm install
+npm run dev
+```
+
+### Verification
+
+```bash
+npm test
+npm run test:e2e
+npm run build
+```
+
 Initial dmtools automation setup for the English Tutor project.
 Application requirements and implementation stack will be defined in Jira.
 
