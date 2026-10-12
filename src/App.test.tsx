@@ -12,6 +12,12 @@ describe('FluentAI landing page navigation', () => {
     expect(screen.getByRole('region', { name: 'Live Coach' })).toBeInTheDocument();
   });
 
+  it('uses Ant Design for the primary trial action', () => {
+    render(<App />);
+
+    expect(screen.getByRole('button', { name: 'Start Free Trial' })).toHaveClass('ant-btn');
+  });
+
   it('provides a vertical mobile navigation menu without horizontal overflow', () => {
     render(<App />);
 
