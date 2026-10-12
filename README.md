@@ -1,7 +1,20 @@
 # English Tutor
 
-Initial dmtools automation setup for the English Tutor project.
-Application requirements and implementation stack will be defined in Jira.
+FluentAI landing page built with React, TypeScript, Vite and Ant Design.
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+Unit tests use Vitest and Testing Library. Browser integration tests use Playwright:
+
+```bash
+npm test
+npm run test:e2e
+```
 
 - Jira: [English Tutor (ET)](https://kejno.atlassian.net/jira/software/c/projects/ET/boards/100)
 - Repository: kejno/en-tutor
