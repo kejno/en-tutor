@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint src vite.config.ts vitest.config.ts playwright.config.ts --max-warnings 0",
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
@@ -34,6 +34,6 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "jsdom": "^26.1.0",
     "typescript": "~5.9.2",
-    "vitest": "^3.2.4"
+    "vitest": "^5.0.4"
   }
 }

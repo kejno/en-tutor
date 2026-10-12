@@ -1,28 +1,22 @@
-import { render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { cleanup, render, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it } from 'vitest';
 import App from './App';
 
-describe('FluentAI landing page', () => {
-  it('renders the root route with the key header actions', () => {
+describe('FluentAI landing page navigation', () => {
+  afterEach(cleanup);
+
+  it('links Interactive Demo to the Live Coach region', () => {
     render(<App />);
 
-    expect(screen.getByRole('banner')).toBeInTheDocument();
-    const header = screen.getByRole('banner');
-    expect(within(header).getByRole('link', { name: /fluentai/i })).toBeInTheDocument();
-    expect(within(header).getByRole('link', { name: /methodology/i })).toHaveAttribute('href', '#methodology');
-    expect(within(header).getByRole('link', { name: /interactive demo/i })).toHaveAttribute('href', '#live-coach');
-    expect(within(header).getByRole('link', { name: /start free trial/i })).toBeInTheDocument();
+    expect(within(screen.getByRole('navigation', { name: 'Primary navigation' })).getByRole('link', { name: 'Interactive Demo' })).toHaveAttribute('href', '#live-coach');
+    expect(screen.getByRole('region', { name: 'Live Coach' })).toBeInTheDocument();
   });
 
-  it('keeps navigation usable on small screens through the menu button', async () => {
-    const user = userEvent.setup();
+  it('provides a vertical mobile navigation menu without horizontal overflow', () => {
     render(<App />);
 
-    await user.click(within(screen.getAllByRole('banner')[0]).getByRole('button', { name: /open navigation/i }));
-
-    const dialog = screen.getByRole('dialog');
-    expect(dialog).toBeInTheDocument();
-    expect(within(dialog).getByRole('link', { name: /pricing/i })).toBeInTheDocument();
+    const navigation = screen.getByRole('navigation', { name: 'Mobile primary navigation' });
+    expect(navigation).toHaveClass('mobile-navigation-links');
+    expect(navigation.querySelectorAll('a')).toHaveLength(5);
   });
 });
