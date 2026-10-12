@@ -1,10 +1,13 @@
-import eslint from '@eslint/js';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import parser from '@typescript-eslint/parser';
 import reactHooks from 'eslint-plugin-react-hooks';
-import tseslint from 'typescript-eslint';
 
-export default tseslint.config(
-  { ignores: ['.dmtools/**', 'dist', 'node_modules', 'playwright-report', 'test-results'] },
-  eslint.configs.recommended,
-  ...tseslint.configs.recommended,
-  { files: ['src/**/*.{ts,tsx}'], plugins: { 'react-hooks': reactHooks }, rules: { ...reactHooks.configs.recommended.rules } },
-);
+export default [
+  { ignores: ['dist/**', 'node_modules/**', 'playwright-report/**'] },
+  {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: { parser, parserOptions: { ecmaFeatures: { jsx: true }, sourceType: 'module' } },
+    plugins: { '@typescript-eslint': tseslint, 'react-hooks': reactHooks },
+    rules: { ...tseslint.configs.recommended.rules, ...reactHooks.configs.recommended.rules, 'react-hooks/exhaustive-deps': 'warn' },
+  },
+];
