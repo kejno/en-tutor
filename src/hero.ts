@@ -1,4 +1,4 @@
-import { renderAssessmentCard } from './assessment.ts';
+import { renderAssessmentCard } from './assessment';
 
 export function renderHero(): HTMLElement {
   const hero = document.createElement('main');
