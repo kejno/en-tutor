@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { EmailCapture } from './components/EmailCapture';
 import { Faq } from './components/Faq';
 import { Footer } from './components/Footer';
+import { renderAssessmentCard } from './assessment';
 import { getPriceView, type BillingPeriod } from './pricing';
 import './styles.css';
 
@@ -29,6 +30,22 @@ const faqItems = [
   },
 ];
 
+function AssessmentPreview() {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const card = renderAssessmentCard();
+    container.replaceChildren(card);
+
+    return () => card.remove();
+  }, []);
+
+  return <div ref={containerRef} aria-label="Emma speech assessment" />;
+}
+
 function App() {
   const [billing, setBilling] = useState<BillingPeriod>('annual');
   const [activatedPlan, setActivatedPlan] = useState<string | null>(null);
@@ -41,7 +58,7 @@ function App() {
       <header className="site-header"><a className="brand" href="#top"><span className="brand-mark">✦</span> FluentAI</a><nav><a href="#methodology">Methodology</a><a href="#paths">Personalized Paths</a><a href="#results">Results &amp; Stories</a><a href="#pricing">Pricing</a></nav><div className="header-actions"><a href="#final-cta">Log in</a><button className="button small" data-testid="header-trial" type="button" onClick={showTrialNotice}>Start Free Trial</button><span className="avatar">A</span></div></header>
       {trialNotice && <div className="sr-only" role="status">Пробный период скоро будет доступен</div>}
       <main>
-        <section className="hero section"><div className="hero-copy"><p className="eyebrow">FluentAI 3.0 Live <span>Real-time Accent Coach &amp; Instant Fluency Feedback</span></p><h1>Speak English with Natural <em>Confidence in Just 15 Minutes a Day</em></h1><p>Overcome speaking anxiety with a private, hyper-realistic AI tutor that listens, repairs grammar gently in real-time, and tailors every simulated dialogue to your exact career ambitions.</p><div className="hero-actions"><button aria-label="Start trial from hero" className="button" data-testid="trial-cta" type="button" onClick={showTrialNotice}>Start Free 7-Day Trial ↗</button><a className="button secondary" href="#methodology">◉ Watch 2-Min Live Demo</a></div><div className="trust-line"><strong>4.9/5</strong> <span>•</span> 48,000+ active learners across 110 countries <span>•</span> #1 EdTech Product Hunt</div></div><div className="product-preview"><div className="preview-header"><span>Emma • AI Native Coach</span><span className="live">● Live Voice</span></div><p className="scenario">Scenario: Tech Lead Architecture Pitch &amp; Executive Q&amp;A</p><div className="speech">“That migration strategy makes total sense. Could you elaborate on how your team addressed the latency spike?”</div><div className="correction"><small>Real-Time Grammar Alignment</small><br />Instead of “we make mistakes yesterday”, try <strong>“we made mistakes yesterday”</strong></div><div className="dial"><b>94%</b><span>ACCURACY</span></div></div></section>
+        <section className="hero section"><div className="hero-copy"><p className="eyebrow">FluentAI 3.0 Live <span>Real-time Accent Coach &amp; Instant Fluency Feedback</span></p><h1>Speak English with Natural <em>Confidence in Just 15 Minutes a Day</em></h1><p>Overcome speaking anxiety with a private, hyper-realistic AI tutor that listens, repairs grammar gently in real-time, and tailors every simulated dialogue to your exact career ambitions.</p><div className="hero-actions"><button aria-label="Start trial from hero" className="button" data-testid="trial-cta" type="button" onClick={showTrialNotice}>Start Free 7-Day Trial ↗</button><a className="button secondary" href="#methodology">◉ Watch 2-Min Live Demo</a></div><div className="trust-line"><strong>4.9/5</strong> <span>•</span> 48,000+ active learners across 110 countries <span>•</span> #1 EdTech Product Hunt</div></div><AssessmentPreview /></section>
         <section className="logo-strip"><p>TRUSTED BY AMBITIOUS PROFESSIONALS &amp; GRADUATE STUDENTS FROM LEADING INSTITUTIONS WORLDWIDE</p><div><b>Google</b><b>Spotify</b><b>McKinsey</b><b>Stanford</b><b>Uber</b><b>Revolut</b></div></section>
         <section className="section" id="methodology"><div className="section-heading"><p className="eyebrow">Neuro-Linguistic Engine</p><h2>The 3-Step Rapid Fluency Method</h2><p>Built without intimidating multiple-choice drills. You speak out loud from minute one with progressive cognitive difficulty.</p></div><div className="three-col">{[['01', 'Diagnostic Voice Assessment', 'In 3 minutes, our AI analyzes your active vocabulary breadth, accent phoneme stress, and cadence pauses.'], ['02', 'Daily 15-Min Micro-Dialogues', 'Engage in low-pressure, lifelike spoken interactions tailored to your world.'], ['03', 'Surgical Accent Alignment', 'Receive live tongue and palate placement schematics for tricky vowel pairs.']].map(([number, title, text]) => <article className="feature-card" key={number}><span className="number">{number}</span><h3>{title}</h3><p>{text}</p><small>Acoustic Precision · Real-Time Feedback</small></article>)}</div></section>
         <section className="section muted" id="paths"><div className="section-heading"><p className="eyebrow">Targeted Tracks</p><h2>Tailored to What You Actually Say</h2><p>Choose the exact conversational track you need for your career or life milestone.</p></div><div className="pill-row"><span>💼 Business &amp; Tech Pitching</span><span>🎓 IELTS &amp; Academic Prep</span><span>🌍 Everyday Casual Conversation</span><span>✈️ Relocation &amp; Travel Fluency</span></div><div className="split-card"><div><small>Recommended for Senior Engineers, PMs, and Consultants</small><h3>Ace C-Suite Reviews and Executive Phrasing Without Stumbling</h3><p>Simulate high-pressure boardroom interactions. Practice diplomacy, conflict resolution, active pushback, and crisp technical storytelling.</p><ul><li>C-Suite Phrasing Vault</li><li>Real-time Tone Polisher</li><li>Impromptu Pitch Drills</li></ul></div><div className="progress-panel"><span>Executive Track Readiness</span><strong>78%</strong><div className="progress"><i /></div></div></div></section>
