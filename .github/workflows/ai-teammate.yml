@@ -172,6 +172,10 @@ jobs:
         if: ${{ hashFiles('package.json') != '' && hashFiles('package-lock.json') != '' }}
         run: npm ci
 
+      - name: Install Playwright Chromium and system dependencies
+        if: ${{ hashFiles('playwright.config.*') != '' && hashFiles('package-lock.json') != '' }}
+        run: npx --no-install playwright install --with-deps chromium
+
       - name: Generate Prisma Client when configured
         if: ${{ hashFiles('**/prisma/schema.prisma') != '' && hashFiles('package-lock.json') != '' }}
         run: |
