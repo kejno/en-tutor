@@ -1,3 +1,5 @@
+Use actual ticket keys from the input context. `<PROJECT_KEY>` below is a placeholder for their project, not a literal value.
+
 # Story Test Automation Output Rules
 
 ## Mandatory JSON output
@@ -6,15 +8,15 @@ Write `outputs/story_test_automation_result.json` with exactly this schema in a 
 
 ```json
 {
-  "storyKey": "TS-123",
+  "storyKey": "<PROJECT_KEY>-123",
   "overall": "passed|failed|blocked_by_human",
   "summary": "Short human-readable summary of what was done.",
   "results": [
     {
-      "testCaseKey": "TS-124",
+      "testCaseKey": "<PROJECT_KEY>-124",
       "status": "passed|failed|skipped|irrelevant",
-      "testPath": "tests/TS-124.e2e-spec.ts",
-      "failedDescriptionFile": "outputs/failed_description_TS-124.md",
+      "testPath": "tests/<PROJECT_KEY>-124.e2e-spec.ts",
+      "failedDescriptionFile": "outputs/failed_description_<PROJECT_KEY>-124.md",
       "failureSummary": "One-line failure summary when status is failed."
     }
   ],

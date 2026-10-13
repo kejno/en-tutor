@@ -1,3 +1,5 @@
+Use actual ticket keys from the input context. `<PROJECT_KEY>` below is a placeholder for their project, not a literal value.
+
 User request is in the `input` folder. Before reading any named input file, run:
 
 ```bash
@@ -7,7 +9,7 @@ find input -maxdepth 2 -type f -print
 Read the exact paths returned by that command. Do not read `input/request.md`,
 `input/comments.md`, `input/linked_tests.md`, or `input/existing_questions.json`
 unless that exact path appears in the `find` output. If a listed file has a
-ticket-key subfolder path such as `input/TS-123/request.md`, read that exact
+ticket-key subfolder path such as `input/<PROJECT_KEY>-123/request.md`, read that exact
 path instead. If `instruction.md` is missing at the repo root, do not retry it.
 
 **IMPORTANT** Before anything else, read inputs in this order:

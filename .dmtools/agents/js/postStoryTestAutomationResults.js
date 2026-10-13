@@ -151,7 +151,7 @@ function attemptResumeIfOutputsIncomplete(storyKey, result, linkedTestCases, wor
                     "type": "object",
                     "required": ["testCaseKey", "status"],
                     "properties": {
-                        "testCaseKey": { "type": "string", "pattern": "^TS-[0-9]+$" },
+                        "testCaseKey": { "type": "string", "enum": linkedTestCases.map(function(tc) { return tc.key; }).filter(Boolean) },
                         "status": { "type": "string", "enum": ["passed", "failed", "skipped", "irrelevant"] },
                         "testPath": { "type": "string" },
                         "failedDescriptionFile": { "type": "string" },
@@ -174,7 +174,7 @@ function attemptResumeIfOutputsIncomplete(storyKey, result, linkedTestCases, wor
         '- For every missing Test Case, run/verify the corresponding automated test.\n' +
         '- Create or update outputs/story_test_automation_result.json with a top-level object that matches the JSON Schema below.\n' +
         '- Append a result entry for each missing Test Case:\n' +
-        '  { "testCaseKey": "TS-XXX", "status": "passed" | "failed" | "skipped" | "irrelevant", "testPath": "testing/tests/TS-XXX/...", "failedDescriptionFile": "outputs/failed_description_TS-XXX.md", "failureSummary": "..." }\n' +
+        '  { "testCaseKey": "<TEST-CASE-KEY>", "status": "passed" | "failed" | "skipped" | "irrelevant", "testPath": "testing/tests/<TEST-CASE-KEY>/...", "failedDescriptionFile": "outputs/failed_description_<TEST-CASE-KEY>.md", "failureSummary": "..." }\n' +
         '- If the result JSON file is missing, create it from scratch using the existing outputs/response.md and testing/tests/ files as evidence.\n' +
         '- If a test fails, write a failed description file and reference it in the result entry.\n' +
         '- Do NOT push changes; the post-action will commit and push after you finish.\n' +

@@ -384,7 +384,13 @@ function action(params) {
 
             var bugKey = null;
             try {
-                var projectKey = (linkedTCs[0] || 'TS-1').split('-')[0];
+                if (linkedTCs.length === 0 || linkedTCs.some(function(key) {
+                    return typeof key !== 'string' || !/^[A-Z][A-Z0-9_]*-[0-9]+$/.test(key) || !processedSet[key];
+                })) throw new Error('Cannot create a bug without valid processed Test Case keys');
+                var projectKey = linkedTCs[0].split('-')[0];
+                if (linkedTCs.some(function(key) { return key.split('-')[0] !== projectKey; })) {
+                    throw new Error('Cannot create one bug for Test Cases from different projects');
+                }
                 var priority = bugDef.priority || 'Medium';
                 var result = jira_create_ticket_basic(projectKey, 'Bug', summary, description);
                 bugKey = extractKeyFromResult(result);

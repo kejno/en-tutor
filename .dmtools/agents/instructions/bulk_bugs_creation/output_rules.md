@@ -1,3 +1,5 @@
+Use actual ticket keys from the input context. `<PROJECT_KEY>` below is a placeholder for their project, not a literal value.
+
 # Bulk Bug Creation Output Rules
 
 ## Required JSON
@@ -6,21 +8,21 @@ Write `outputs/bulk_bug_decisions.json`:
 
 ```json
 {
-  "processed": ["TS-984", "TS-954", "TS-909"],
+  "processed": ["<PROJECT_KEY>-984", "<PROJECT_KEY>-954", "<PROJECT_KEY>-909"],
   "newBugs": [
     {
       "summary": "...",
       "priority": "High|Medium|Low",
       "descriptionFile": "outputs/bug_001_description.md",
-      "linkedTCs": ["TS-984", "TS-954"]
+      "linkedTCs": ["<PROJECT_KEY>-984", "<PROJECT_KEY>-954"]
     }
   ],
   "links": [
-    { "tcKey": "TS-909", "bugKey": "TS-123" }
+    { "tcKey": "<PROJECT_KEY>-909", "bugKey": "<PROJECT_KEY>-123" }
   ],
   "skipped": [
     {
-      "tcKey": "TS-800",
+      "tcKey": "<PROJECT_KEY>-800",
       "reason": "Detailed reason why this is a test-code issue"
     }
   ]

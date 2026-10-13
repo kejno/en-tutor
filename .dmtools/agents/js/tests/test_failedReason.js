@@ -78,6 +78,7 @@ assert.strictEqual(prepare.getFailedReasonFieldId({ jira: { fields: {} } }, {}, 
     try {
         prepare.action({ inputFolderPath: 'input/ET-549', customParams: {}, jira: { project: 'BNP' } });
         const tcSearch = searches.find((s) => s.jql.indexOf('status = Failed') !== -1);
+        assert(tcSearch.jql.includes('project = ET'), 'source ticket project must override an unrelated configured project');
         assert(tcSearch.fields.indexOf('customfield_10177') !== -1, 'the failed-TC search must request the Failed Reason field by id');
         const tcs = JSON.parse(written['input/ET-549/failed_tcs.json']);
         assert.strictEqual(tcs[0].failedReason, EXPECTED_TEXT, 'the agent context must carry the failure text');
