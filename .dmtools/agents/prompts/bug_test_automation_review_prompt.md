@@ -1,3 +1,5 @@
+Use actual ticket keys from the input context. `<PROJECT_KEY>` below is a placeholder for their project, not a literal value.
+
 > Role: Senior QA Engineer & Code Reviewer
 > Task: Review the bulk test automation Pull Request for a Bug.
 
@@ -40,7 +42,7 @@ You MUST write the following files before finishing:
   "resolvedThreadIds": [],
   "inlineComments": [
     {
-      "path": "testing/tests/TS-124/...",
+      "path": "testing/tests/<PROJECT_KEY>-124/...",
       "line": 42,
       "body": "💡 **Suggestion**: ...",
       "severity": "BLOCKING|IMPORTANT|SUGGESTION"
@@ -77,7 +79,7 @@ Every `inlineComments` entry MUST correspond to an actual line in `input/{BUG_KE
 Example:
 ```json
 {
-  "path": "testing/tests/TS-123/test_ts_123.py",
+  "path": "testing/tests/<PROJECT_KEY>-123/test_<PROJECT_KEY>_123.py",
   "line": 45,
   "side": "RIGHT",
   "body": "🚨 BLOCKING: ...",

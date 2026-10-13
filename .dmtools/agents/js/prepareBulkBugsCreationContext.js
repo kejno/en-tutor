@@ -74,9 +74,16 @@ function action(params) {
         var inputFolder = actualParams.inputFolderPath;
 
         var customParams = actualParams.customParams || {};
-        var projectKey = (actualParams.jira && actualParams.jira.project)
-            || (params.ticket && params.ticket.key && params.ticket.key.split('-')[0])
-            || 'TS';
+        var config = configLoader.loadProjectConfig(actualParams);
+        var sourceTicket = params.ticket || actualParams.ticket;
+        var sourceKey = sourceTicket && sourceTicket.key;
+        var folderKey = (inputFolder || '').split('/').pop();
+        var projectKey = (sourceTicket && sourceTicket.fields && sourceTicket.fields.project && sourceTicket.fields.project.key)
+            || (sourceKey && sourceKey.split('-')[0])
+            || (/^[A-Z][A-Z0-9_]*-[0-9]+$/.test(folderKey) && folderKey.split('-')[0])
+            || (actualParams.jira && actualParams.jira.project)
+            || (config.jira && config.jira.project);
+        if (!projectKey) throw new Error('Cannot determine Jira project for bulk bug creation');
         var batchSize = customParams.batchSize || 50;
 
         var openBugsJql = (customParams.openBugsJql || 'project = {jiraProject} AND issuetype in (Bug) AND status not in (Done)')
@@ -86,7 +93,6 @@ function action(params) {
             'project = {jiraProject} AND issuetype = "Test Case" AND status = Failed AND (labels is EMPTY OR labels NOT IN (sm_bug_creation_triggered)) ORDER BY created ASC')
             .replace('{jiraProject}', projectKey);
 
-        var config = configLoader.loadProjectConfig(actualParams);
         var failedReasonFieldName = getFailedReasonFieldName(config, customParams);
         var failedReasonFieldId = getFailedReasonFieldId(config, customParams, failedReasonFieldName);
         console.log('Failed Reason field name:', failedReasonFieldName, '| id:', failedReasonFieldId || '(not configured — the field will not be fetched)');
