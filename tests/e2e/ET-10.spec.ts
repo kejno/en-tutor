@@ -10,7 +10,7 @@ test('shows the trust, methodology, and personalized assessment sections', async
   await expect(page.locator('#paths .split-card')).toBeVisible();
 });
 
-test('changes the displayed active topic without changing the demonstration card', async ({ page }) => {
+test('changes the displayed active topic and demonstration card together', async ({ page }) => {
   await page.goto('/');
 
   const topics = page.getByTestId('topic-tag');
@@ -19,7 +19,10 @@ test('changes the displayed active topic without changing the demonstration card
   await topics.nth(1).click();
 
   await expect(topics.nth(1)).toHaveAttribute('aria-pressed', 'true');
-  await expect(cardTitle).toHaveText('Ace C-Suite Reviews and Executive Phrasing Without Stumbling');
+  await expect(cardTitle).toContainText('🎓 IELTS & Academic Prep');
+  await expect(cardTitle).toContainText('Build Confident IELTS Answers and Academic Arguments');
+  await expect(page.locator('#paths .roleplay-panel')).toContainText('Structured Response Framework');
+  await expect(page.locator('#paths .roleplay-panel')).not.toContainText('C-Suite Phrasing Vault');
 });
 
 test('uses 16px horizontal section padding at the mobile breakpoint boundary', async ({ page }) => {

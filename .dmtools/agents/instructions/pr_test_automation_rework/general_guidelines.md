@@ -60,3 +60,33 @@ side (e.g. it needs a product fix, or a human decision on scope), say so
 explicitly in `outputs/response.md` under a clear heading and leave that
 thread out of `review_replies.json` rather than closing it with a reply that
 doesn't reflect what happened.
+
+## Focused Test Case result contract
+
+The PR and repository-wide quality gates are shared, but the Jira status being
+updated belongs only to the Test Case that triggered this rework run.
+
+- Run the triggering Test Case's focused test command after making the changes.
+- In `outputs/test_automation_result.json`, `status` MUST describe only that
+  focused Test Case run. Failures from sibling Test Cases or unrelated tests in
+  the full suite MUST NOT change this value.
+- `testCaseKey` is required and MUST equal the triggering ticket key.
+- If the full suite has other failures, report them separately with optional
+  `suiteStatus`, `suiteSummary`, and `suiteFailures` fields.
+- A genuine product defect found by another Test Case belongs to that other
+  Test Case; do not mark the coordinator Test Case failed because the PR is shared.
+
+Example — ET-38 passes while sibling ET-37 finds a product defect:
+
+```json
+{
+  "testCaseKey": "ET-38",
+  "status": "passed",
+  "passed": 3,
+  "failed": 0,
+  "summary": "Focused ET-38 run: 3 passed",
+  "suiteStatus": "failed",
+  "suiteSummary": "18 passed, 2 failed",
+  "suiteFailures": ["ET-37", "BNP-575"]
+}
+```

@@ -78,3 +78,7 @@ If a platform still expects `outputs/response.md`, write a concise GitHub Markdo
 ## `outputs/test_automation_result.json` — machine-readable result
 
 Write the structured status JSON exactly as described in `agents/instructions/test_automation/test_automation_json_output.md`.
+
+For `pr_test_automation_rework`, include the triggering `testCaseKey` and make
+the top-level `status` the outcome of that Test Case's focused run. Keep any
+unrelated full-suite failures in the separate diagnostic suite fields.
