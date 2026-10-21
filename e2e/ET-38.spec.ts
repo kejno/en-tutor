@@ -29,7 +29,9 @@ for (const viewport of viewports) {
     expect(sectionTops[0]).toBeLessThan(sectionTops[1]);
     expect(sectionTops[1]).toBeLessThan(sectionTops[2]);
 
-    const expectedSectionPadding = viewport.width <= 767 ? '16px' : '32px';
+    const expectedSectionPadding = viewport.width <= 767
+      ? '16px'
+      : `${Math.max(32, (viewport.width - 1152) / 2)}px`;
     const expectedPathsPadding = viewport.width <= 767
       ? '16px'
       : `${Math.max(32, (viewport.width - 1200) / 2)}px`;
