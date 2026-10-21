@@ -27,7 +27,7 @@ describe('FluentAI landing page navigation', () => {
     expect(navigation.querySelectorAll('a')).toHaveLength(5);
   });
 
-  it('changes only the active state when a learning topic is selected', async () => {
+  it('changes the active state and assessment card when a learning topic is selected', async () => {
     const user = userEvent.setup();
     render(<App />);
 
@@ -37,6 +37,10 @@ describe('FluentAI landing page navigation', () => {
 
     expect(topics[0]).toHaveAttribute('aria-pressed', 'false');
     expect(topics[1]).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByText(/Ace C-Suite Reviews/)).toBeInTheDocument();
+    const card = screen.getByText(/🎓 IELTS & Academic Prep: Build Confident IELTS Answers/).closest('.split-card');
+
+    expect(card).toBeInTheDocument();
+    expect(within(card as HTMLElement).getByText(/Structured Response Framework/)).toBeInTheDocument();
+    expect(within(card as HTMLElement).queryByText(/C-Suite Phrasing Vault/)).not.toBeInTheDocument();
   });
 });
