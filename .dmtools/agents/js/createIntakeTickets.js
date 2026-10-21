@@ -115,6 +115,23 @@ function readDescriptionFile(filePath, fallbackSummary, ticketKey) {
 }
 
 /**
+ * Keep the exact Figma source attached to the Story even if the model omitted
+ * it from the prose description. This makes the downstream BA, solution and
+ * development agents consume the same deterministic design target.
+ */
+function appendFigmaReference(description, figma) {
+    if (!figma || !figma.nodeId || !figma.url) return description;
+    var details = 'h3. Figma implementation target\n\n' +
+        '*Node:* ' + (figma.nodeName || figma.nodeId) + ' ({{' + figma.nodeId + '}})\n' +
+        '*URL:* ' + figma.url;
+    if (figma.bounds && figma.bounds.width && figma.bounds.height) {
+        details += '\n*Frame bounds:* ' + figma.bounds.width + '×' + figma.bounds.height + ' px';
+    }
+    if (description.indexOf(figma.url) !== -1) return description;
+    return description.replace(/\s+$/, '') + '\n\n' + details;
+}
+
+/**
  * Get MIME content type from file extension
  * @param {string} filePath
  * @returns {string} MIME type
@@ -257,7 +274,10 @@ function createEpic(entry, projectKey, sourceTicketKey) {
  */
 function createStory(entry, resolvedParent, projectKey, sourceTicketKey) {
     var summary = buildSummary(entry.summary, 0);
-    var description = readDescriptionFile(entry.description, summary, sourceTicketKey);
+    var description = appendFigmaReference(
+        readDescriptionFile(entry.description, summary, sourceTicketKey),
+        entry.figma
+    );
 
     try {
         var storyFields = {
@@ -280,6 +300,47 @@ function createStory(entry, resolvedParent, projectKey, sourceTicketKey) {
         console.error('Failed to create Story "' + summary + '" under ' + resolvedParent + ':', error);
         return null;
     }
+}
+
+function validateFigmaMapping(entry) {
+    if (!entry || !entry.figma) return;
+    var figma = entry.figma;
+    if (typeof figma !== 'object' || !figma.nodeId || !figma.url || !/^https:\/\/www\.figma\.com\//.test(figma.url)) {
+        throw new Error('Invalid figma mapping for Story: ' + (entry.summary || '(untitled)'));
+    }
+}
+
+function sourceRequiresFigmaMappings(ticketKey, params) {
+    if (!params) return false;
+    var source = getSourceTicket(ticketKey, params);
+    if (typeof source === 'string') source = JSON.parse(source);
+    var fields = source && source.fields || {};
+    return fields.issuetype && fields.issuetype.name === ISSUE_TYPES.EPIC &&
+        (fields.labels || []).indexOf('figma_required') !== -1;
+}
+
+function prepareFigmaMappings(entries, ticketKey, params) {
+    var strict = sourceRequiresFigmaMappings(ticketKey, params);
+    entries.forEach(function(entry) {
+        if (!entry || entry.type !== ISSUE_TYPES.STORY) return;
+        if (!entry.figma) {
+            if (strict) {
+                throw new Error('Epic ' + ticketKey + ' is labeled figma_required, but Story has no Figma mapping: ' +
+                    (entry.summary || '(untitled)'));
+            }
+            return;
+        }
+        try {
+            validateFigmaMapping(entry);
+        } catch (error) {
+            if (strict) throw error;
+            // Figma is optional. A failed lookup or malformed optional mapping
+            // must never prevent intake from creating normal non-design work.
+            console.warn('Ignoring invalid optional Figma mapping for ' +
+                (entry.summary || '(untitled)') + ':', error.message);
+            delete entry.figma;
+        }
+    });
 }
 
 /**
@@ -359,6 +420,7 @@ function action(params) {
 
         // 1. Read stories.json
         var stories = validateIntakeStructure(readStoriesJson(ticketKey), ticketKey, params);
+        prepareFigmaMappings(stories, ticketKey, params);
         console.log('Found ' + stories.length + ' entries in stories.json');
 
         var results = [];
@@ -625,4 +687,14 @@ function action(params) {
             error: error.toString()
         };
     }
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        action: action,
+        appendFigmaReference: appendFigmaReference,
+        validateFigmaMapping: validateFigmaMapping,
+        sourceRequiresFigmaMappings: sourceRequiresFigmaMappings,
+        prepareFigmaMappings: prepareFigmaMappings
+    };
 }

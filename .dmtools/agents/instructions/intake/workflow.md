@@ -5,6 +5,15 @@ flowchart TD
         I2["comments.md — history & decisions"]
         I3["existing_epics.json"]
         I4["existing_stories.json — avoid duplicates"]
+        I5["figma_context.json — discovered Figma frames and node candidates, if request has a Figma URL"]
+    end
+
+    subgraph FIGMA["Map design stories to Figma"]
+        F1["Read figma_context.json and its reference PNG before decomposition"]
+        F2["For every visual Story select the narrowest matching node candidate"]
+        F3["Write its id, name, URL and bounds to stories.json.figma"]
+        F4["If figma_context_error.md exists: continue normally unless the Epic has label figma_required; then report a blocker and create no Stories"]
+        F1 --> F2 --> F3
     end
 
     subgraph ATTACH["Check attachments"]
@@ -66,6 +75,7 @@ flowchart TD
     CR7["CRITICAL: existing_epics.json / existing_stories.json are freshly fetched from the live tracker THIS run and are the SOLE authoritative record of which tickets currently exist. NEVER treat a ticket key mentioned only in comments.md / a prior run's summary / your own memory as still existing if it is absent from existing_epics.json / existing_stories.json — it may have been deleted or never actually created. If these files appear inconsistent with what a prior comment claims, the freshly fetched files are correct and the prior comment is stale — do not rationalize the mismatch as an 'environment quirk' and fall back to trusting the stale text. Before using ANY key as a `parent`, `blockedBy`, or `integrates` reference, confirm that exact key is present in the freshly fetched existing_epics.json/existing_stories.json for this run."]
 
     INPUT --> STUDY
+    INPUT --> FIGMA
     INPUT --> ATTACH
     STUDY --> DECIDE
     ATTACH --> DECIDE
