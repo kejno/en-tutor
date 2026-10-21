@@ -21,3 +21,11 @@ test('changes the displayed active topic without changing the demonstration card
   await expect(topics.nth(1)).toHaveAttribute('aria-pressed', 'true');
   await expect(cardTitle).toHaveText('Ace C-Suite Reviews and Executive Phrasing Without Stumbling');
 });
+
+test('uses 16px horizontal section padding at the mobile breakpoint boundary', async ({ page }) => {
+  await page.setViewportSize({ width: 767, height: 900 });
+  await page.goto('/');
+
+  await expect(page.locator('#paths')).toHaveCSS('padding-left', '16px');
+  await expect(page.locator('#paths')).toHaveCSS('padding-right', '16px');
+});
