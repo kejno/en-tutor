@@ -46,6 +46,8 @@
  *                               activates the correct project-specific dependency setup (e.g. "myproject",
  *                               "bice"). Auto-derived from configPath basename when not set
  *                               (e.g. ".dmtools/configs/myproject.js" → "myproject").
+ *   model          (optional) — model override; agent config `model`/`params.model` wins,
+ *                               then this rule field, then the global CODEX_MODEL value
  *   skipIfLabel    (optional) — skip ticket if it already has this label (idempotency)
  *   skipIfLabels   (optional) — skip ticket if it already has any of these labels
  *   addLabel       (optional) — add this label after triggering (idempotency marker)
@@ -564,6 +566,7 @@ function triggerWorkflow(repoInfo, ticketKey, ticket, rule, effectiveConfig, wor
     var resolvedCf   = buildEncodedConfigModule.resolveConfigFile(rule, effectiveConfig);
     var concurrencyKey = resolveRuleConcurrencyKey(rule, ticketKey, ticket, effectiveConfig);
     var resolvedProvider = resolveRuleProvider(rule, workflowBudget);
+    var resolvedModel = buildEncodedConfigModule.resolveAgentModel(rule, effectiveConfig);
 
     // Resolve project_key: explicit rule field takes priority, then auto-derive from configPath
     // e.g. ".dmtools/configs/myproject.js" → "myproject", ".dmtools/configs/bice.js" → "bice"
@@ -616,7 +619,8 @@ function triggerWorkflow(repoInfo, ticketKey, ticket, rule, effectiveConfig, wor
             agent_name:      resolvedCf.substring(resolvedCf.lastIndexOf('/') + 1).replace(/\.json$/, ''),
             encoded_config:  buildEncodedConfigModule.buildEncodedConfig(ticketKey, rule, effectiveConfig),
             project_key:     projectKey,
-            provider:        resolvedProvider
+            provider:        resolvedProvider,
+            model:           resolvedModel
         };
 
         scm.triggerWorkflow(
@@ -683,6 +687,7 @@ function runTeammateLocally(ticketKey, rule, effectiveConfig) {
     // (e.g. "master") — always pass it explicitly when we know it.
     var baseBranch = (effectiveConfig && effectiveConfig.git && effectiveConfig.git.baseBranch)
         || rule.baseBranch || '';
+    var resolvedModel = buildEncodedConfigModule.resolveAgentModel(rule, effectiveConfig);
 
     var cmd = 'bash ' + scriptPath +
         ' --config-file ' + resolvedCf +
@@ -690,6 +695,7 @@ function runTeammateLocally(ticketKey, rule, effectiveConfig) {
         (encodedConfigFile ? ' --encoded-config-file ' + encodedConfigFile : '') +
         (projectKey ? ' --project-key ' + projectKey : '') +
         (baseBranch ? ' --base-branch ' + baseBranch : '');
+    if (resolvedModel) cmd = 'env CODEX_MODEL=' + shellQuote(resolvedModel) + ' ' + cmd;
 
     console.log('  🖥️  [local] ' + cmd);
 
@@ -711,6 +717,10 @@ function runTeammateLocally(ticketKey, rule, effectiveConfig) {
     }
 
     return ok;
+}
+
+function shellQuote(value) {
+    return "'" + String(value).replace(/'/g, "'\\''") + "'";
 }
 
 function moveStatus(ticketKey, targetStatus) {

@@ -138,7 +138,7 @@ BINEOF
       || { echo "[existing-auth-file] API key should remain unset" >&2; exit 1; }
     grep -qx -- '--model' "${CODEX_HOME}/observed-args" \
       || { echo "[existing-auth-file] expected default --model argument" >&2; exit 1; }
-    grep -qx -- 'gpt-5.6-terra' "${CODEX_HOME}/observed-args" \
+    grep -qx -- 'gpt-6.1-sol' "${CODEX_HOME}/observed-args" \
       || { echo "[existing-auth-file] default model was not passed to Codex CLI" >&2; exit 1; }
   )
 }
