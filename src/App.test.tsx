@@ -1,4 +1,5 @@
 import { cleanup, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import App from './App';
 
@@ -24,5 +25,18 @@ describe('FluentAI landing page navigation', () => {
     const navigation = screen.getByRole('navigation', { name: 'Mobile primary navigation' });
     expect(navigation).toHaveClass('mobile-navigation-links');
     expect(navigation.querySelectorAll('a')).toHaveLength(5);
+  });
+
+  it('changes only the active state when a learning topic is selected', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    const topics = screen.getAllByTestId('topic-tag');
+    expect(topics[0]).toHaveAttribute('aria-pressed', 'true');
+    await user.click(topics[1]);
+
+    expect(topics[0]).toHaveAttribute('aria-pressed', 'false');
+    expect(topics[1]).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText(/Ace C-Suite Reviews/)).toBeInTheDocument();
   });
 });
