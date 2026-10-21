@@ -6,8 +6,8 @@ test('ET-42: полоса ключевых метрик показывает у�
   const metrics = page.locator('.stats > div');
 
   await expect(metrics).toHaveCount(4);
-  await expect(metrics.nth(0)).toHaveText(/3\.4xFLUENCY GAINS/);
-  await expect(metrics.nth(1)).toHaveText(/87%INTERVIEW SUCCESS/);
-  await expect(metrics.nth(2)).toHaveText(/\+1\.5IELTS BAND JUMP/);
-  await expect(metrics.nth(3)).toHaveText(/12\.4MMINUTES PRACTICED/);
+  await expect(metrics.nth(0)).toHaveText(/FLUENCY GAINS3\.4x/);
+  await expect(metrics.nth(1)).toHaveText(/INTERVIEW SUCCESS87%/);
+  await expect(metrics.nth(2)).toHaveText(/IELTS BAND JUMP\+1\.5/);
+  await expect(metrics.nth(3)).toHaveText(/MINUTES PRACTICED12\.4M/);
 });
