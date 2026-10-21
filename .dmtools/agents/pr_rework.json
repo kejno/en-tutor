@@ -1,6 +1,6 @@
 {
   "name": "Teammate",
-  "model": "gpt-5.6-terra",
+  "model": "gpt-6.1-sol",
   "params": {
     "metadata": {
       "contextId": "pr_rework",

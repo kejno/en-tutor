@@ -6,7 +6,7 @@ An agent may pin a model in its JSON config:
 
 ```json
 {
-  "model": "gpt-5.6-terra",
+  "model": "gpt-6.1-sol",
   "params": {}
 }
 ```

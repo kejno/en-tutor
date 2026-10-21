@@ -16,7 +16,7 @@
 #   3. OPENAI_API_KEY   - API key billed through the OpenAI platform account.
 #                         No rotation, safe under concurrency.
 # Optional (either auth mode):
-#   CODEX_MODEL         - Model slug (default: gpt-5.6-terra). Set this to
+#   CODEX_MODEL         - Model slug (default: gpt-6.1-sol). Set this to
 #                         override the repo's stable CI default.
 #   CODEX_SANDBOX       - Sandbox mode (default: danger-full-access; the agent
 #                         must be able to write the repo and outputs/)
@@ -44,7 +44,7 @@ run_codex() {
     return 1
   fi
 
-  local codex_model="${CODEX_MODEL:-gpt-5.6-terra}"
+  local codex_model="${CODEX_MODEL:-gpt-6.1-sol}"
   local codex_model_args=()
   codex_model_args=(--model "${codex_model}")
   local codex_sandbox="${CODEX_SANDBOX:-danger-full-access}"
