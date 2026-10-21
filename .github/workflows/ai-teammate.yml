@@ -47,6 +47,9 @@ on:
       provider:
         description: 'AI CLI provider (claude-code | codex | codex-1 | codex-2). codex aliases account 1.'
         required: false
+      model:
+        description: 'Optional model override for this run; empty uses the repository CODEX_MODEL variable.'
+        required: false
 
 permissions:
   contents: write
@@ -247,7 +250,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           # Optional override. Empty means: use the model Codex CLI selects
           # for the authenticated ChatGPT account.
-          CODEX_MODEL: ${{ vars.CODEX_MODEL }}
+          CODEX_MODEL: ${{ inputs.model || vars.CODEX_MODEL }}
 
           DMTOOLS_INTEGRATIONS: 'jira,github,ai,cli,file'
           ENCODED_CONFIG: ${{ inputs.encoded_config }}

@@ -41,6 +41,38 @@ function resolveConfigFile(rule, effectiveConfig) {
     return cf;
 }
 
+/**
+ * Resolve an optional model override for an agent.
+ * Agent config wins over the SM rule; when both are absent, the workflow
+ * keeps the repository-wide CODEX_MODEL fallback.
+ */
+function resolveAgentModel(rule, effectiveConfig) {
+    var resolvedCf = resolveConfigFile(rule, effectiveConfig);
+    var projectKey = (rule && rule.projectKey) || '';
+    if (!projectKey && effectiveConfig && effectiveConfig._configPath) {
+        var cp = effectiveConfig._configPath;
+        var base = cp.substring(cp.lastIndexOf('/') + 1).replace(/\.js$/, '');
+        if (base && base !== 'config') projectKey = base;
+    }
+
+    if (resolvedCf) {
+        var agentJsonPath = resolvedCf;
+        if (projectKey) {
+            var filename = resolvedCf.replace(/^.*\//, '');
+            var projectSpecific = 'ai_teammate/' + projectKey + '/' + filename;
+            if (tryReadJson(projectSpecific)) agentJsonPath = projectSpecific;
+        }
+        var agentJson = tryReadJson(agentJsonPath);
+        if (agentJson) {
+            var localModel = agentJson.model || (agentJson.params && agentJson.params.model);
+            if (typeof localModel === 'string' && localModel.trim()) return localModel.trim();
+        }
+    }
+
+    var ruleModel = rule && rule.model;
+    return typeof ruleModel === 'string' && ruleModel.trim() ? ruleModel.trim() : '';
+}
+
 function tryReadJson(path) {
     try {
         var raw = file_read({ path: path });
@@ -307,6 +339,7 @@ function buildEncodedConfig(ticketKey, rule, effectiveConfig, isLocal) {
 module.exports = {
     extractAgentName: extractAgentName,
     resolveConfigFile: resolveConfigFile,
+    resolveAgentModel: resolveAgentModel,
     resolveParentMerge: resolveParentMerge,
     resolveConfluenceTrackerOverride: resolveConfluenceTrackerOverride,
     buildEncodedConfig: buildEncodedConfig
