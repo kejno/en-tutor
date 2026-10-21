@@ -11,7 +11,8 @@ describe('capability section configuration', () => {
     ]);
     expect(capabilityCards[0].sampleMessage).toContain('French accent');
     expect(capabilityCards[1].indicator).toBe('Match: 95%');
-    expect(capabilityCards[2].tags).toEqual(['Coffee Shop', 'VC Pitch', 'French Interview']);
+    expect(capabilityCards[2].tags).toEqual(['Coffee Shop', 'VC Seed Pitch', 'Emergency Room', '+ Custom Prompt']);
+    expect(capabilityCards[3].description).toContain('she will organically prompt');
     expect(capabilityCards[3].indicator).toBe('Auto-synced');
   });
 
