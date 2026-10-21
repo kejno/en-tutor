@@ -2,6 +2,12 @@
 
 Write structured result to `outputs/test_automation_result.json`.
 
+When the current agent is `pr_test_automation_rework`, the result is scoped to
+one Test Case even though its PR is shared. In that workflow `testCaseKey` is
+also required, and `status` MUST describe the focused run for that Test Case.
+Repository-wide or sibling failures belong in the optional `suiteStatus`,
+`suiteSummary`, and `suiteFailures` fields and MUST NOT overwrite `status`.
+
 ```mermaid
 flowchart TD
     subgraph STATUSES["Status"]
@@ -67,7 +73,7 @@ flowchart TD
 
 ## Detailed Examples (with counts)
 
-The `status` field is the only required field. Additional fields help reporting but are optional.
+The `status` field is normally the only required field. Additional fields help reporting but are optional. For `pr_test_automation_rework`, `testCaseKey` is also required.
 
 ### Passed (with counts)
 ```json
@@ -79,7 +85,7 @@ The `status` field is the only required field. Additional fields help reporting 
 { "status": "failed", "passed": 0, "failed": 1, "skipped": 0, "summary": "0 passed, 1 failed", "error": "AssertionError: <exact error message>" }
 ```
 
-The `"status"` field **must** be exactly `"passed"` or `"failed"` (lowercase). Missing or wrong field name causes the pipeline to break.
+The `"status"` field **must** be exactly `"passed"` or `"failed"` (lowercase). Missing or wrong field name causes the pipeline to break. For `pr_test_automation_rework`, `"testCaseKey"` is additionally required and must match the triggering Test Case.
 
 ## Bug Description Template (when FAILED)
 

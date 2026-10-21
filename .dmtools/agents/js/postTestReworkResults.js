@@ -111,6 +111,38 @@ function readResultJson(ticketKey, workingDir) {
     }
 }
 
+// Test rework runs against a shared Story/Bug PR, so the repository-wide suite
+// can fail because of a different Test Case. Only a result explicitly scoped to
+// the triggering Test Case is safe to apply to its Jira status.
+function resolveTicketResult(result, ticketKey) {
+    if (!result || typeof result !== 'object') {
+        return { error: 'outputs/test_automation_result.json is missing or invalid.' };
+    }
+    if (!result.testCaseKey) {
+        return {
+            error: 'outputs/test_automation_result.json is missing required "testCaseKey". ' +
+                'For test rework, "status" must describe the focused run for ' + ticketKey + ', not the shared PR suite.'
+        };
+    }
+    if (result.testCaseKey !== ticketKey) {
+        return {
+            error: 'outputs/test_automation_result.json belongs to ' + result.testCaseKey +
+                ', but this rework run is for ' + ticketKey + '.'
+        };
+    }
+
+    var rawStatus = typeof result.status === 'string' ? result.status.toLowerCase() : '';
+    var status = (rawStatus === 'pass' || rawStatus === 'passed') ? 'passed' :
+                 (rawStatus === 'fail' || rawStatus === 'failed') ? 'failed' : '';
+    if (!status) {
+        return {
+            error: 'outputs/test_automation_result.json must contain "status": "passed" or "failed" ' +
+                'for Test Case ' + ticketKey + ' (got: ' + JSON.stringify(result.status) + ').'
+        };
+    }
+    return { result: result, status: status };
+}
+
 function findTestPRForTicket(scm, ticketKey) {
     try {
         const branchName = 'test/' + ticketKey;
@@ -503,10 +535,9 @@ function action(params) {
 
         // Step 1: Read new test result
         const result = readResultJson(ticketKey, config.workingDir);
-        if (!result || !result.status) {
-            const errMsg = !result
-                ? 'Could not read outputs/test_automation_result.json — file missing or empty.'
-                : 'outputs/test_automation_result.json is missing required "status" field (got: ' + JSON.stringify(result) + '). The agent must write { "status": "passed" | "failed", ... }.';
+        const resolvedResult = resolveTicketResult(result, ticketKey);
+        if (resolvedResult.error) {
+            const errMsg = resolvedResult.error;
             console.error(errMsg);
             try {
                 jira_post_comment({
@@ -518,12 +549,12 @@ function action(params) {
             return { success: false, error: errMsg };
         }
 
-        const rawStatus = result.status.toLowerCase();
-        const testStatus = (rawStatus === 'pass' || rawStatus === 'passed') ? 'passed' :
-                           (rawStatus === 'fail' || rawStatus === 'failed') ? 'failed' :
-                           rawStatus;
+        const testStatus = resolvedResult.status;
         const passed = testStatus === 'passed';
-        console.log('Re-run result:', result.status, '→ normalized:', testStatus);
+        console.log('Focused re-run result for', ticketKey + ':', result.status, '→ normalized:', testStatus);
+        if (result.suiteStatus) {
+            console.log('Shared suite status (diagnostic only):', result.suiteStatus);
+        }
 
         // Step 2: Configure git + commit/push testing/ only
         try {
@@ -709,5 +740,5 @@ function action(params) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { action, resolveCustomParams };
+    module.exports = { action, resolveCustomParams, resolveTicketResult };
 }
