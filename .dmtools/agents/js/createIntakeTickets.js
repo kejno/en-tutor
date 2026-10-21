@@ -395,6 +395,49 @@ function buildFinalComment(results, aiComment) {
     return comment;
 }
 
+function blockMissingFigmaContext(ticketKey, params, wipLabel) {
+    var reason = 'Epic ' + ticketKey + ' has the figma_required label, but no verified Figma context was available. ' +
+        'The intake cannot create Stories without confirmed Figma node mappings.';
+
+    try {
+        jira_post_comment({
+            key: ticketKey,
+            comment: 'h3. ⛔ Intake blocked — Figma context is required\n\n' +
+                '*Reason:* ' + reason + '\n\n' +
+                '*Required actions:*\n' +
+                '# Grant the configured Figma integration/token access to the source file.\n' +
+                '# Re-run the intake after `figma_context.json` and verified node mappings are available.\n' +
+                '# Stories will be created only as direct children of ' + ticketKey + ' with confirmed Figma nodes.'
+        });
+    } catch (commentError) {
+        console.warn('Failed to post Figma blocker comment to ' + ticketKey + ':', commentError);
+    }
+
+    try {
+        jira_move_to_status({ key: ticketKey, statusName: STATUSES.BLOCKED });
+        console.log('Moved ' + ticketKey + ' to Blocked: Figma context is required');
+    } catch (statusError) {
+        console.warn('Failed to move ' + ticketKey + ' to Blocked:', statusError);
+    }
+
+    if (wipLabel) {
+        try {
+            jira_remove_label({ key: ticketKey, label: wipLabel });
+            console.log('Removed WIP label "' + wipLabel + '" from blocked ticket ' + ticketKey);
+        } catch (wipError) {
+            console.warn('Failed to remove WIP label from blocked ticket:', wipError);
+        }
+    }
+
+    return {
+        success: true,
+        blocked: true,
+        ticketKey: ticketKey,
+        reason: reason,
+        results: []
+    };
+}
+
 function action(params) {
     try {
         var ticketKey = params.ticket.key;
@@ -420,6 +463,10 @@ function action(params) {
 
         // 1. Read stories.json
         var stories = validateIntakeStructure(readStoriesJson(ticketKey), ticketKey, params);
+        if (sourceRequiresFigmaMappings(ticketKey, params) && stories.length === 0) {
+            console.warn('No stories planned for figma_required Epic ' + ticketKey + '; blocking intake');
+            return blockMissingFigmaContext(ticketKey, params, wipLabel);
+        }
         prepareFigmaMappings(stories, ticketKey, params);
         console.log('Found ' + stories.length + ' entries in stories.json');
 
