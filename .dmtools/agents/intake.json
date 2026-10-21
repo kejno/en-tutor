@@ -16,7 +16,8 @@
     "skipAIProcessing": true,
     "alwaysPostComments": true,
     "envVariables": {
-      "CLAUDE_CODE_MAX_TURNS": "60"
+      "CLAUDE_CODE_MAX_TURNS": "60",
+      "CLI_ALLOWED_COMMANDS": "bash"
     },
     "preJSAction": "agents/js/checkWipLabel.js",
     "preCliJSAction": "agents/js/preCliIntakeSetup.js",
