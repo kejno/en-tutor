@@ -7,7 +7,14 @@ test('BNP-574: visitor can open FAQ, reach final CTA, and receive local email co
   await faqQuestion.scrollIntoViewIfNeeded();
   await faqQuestion.click();
   await expect(faqQuestion).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.locator('#faq-answer-trial')).toBeVisible();
+  const answerId = await faqQuestion.getAttribute('aria-controls');
+  expect(answerId).toBeTruthy();
+  const faqAnswer = page.locator(`[id="${answerId}"]`);
+  await expect(faqAnswer).toBeVisible();
+  await expect(faqAnswer).toHaveAttribute('aria-labelledby', await faqQuestion.getAttribute('id') ?? '');
+  await faqQuestion.click();
+  await expect(faqQuestion).toHaveAttribute('aria-expanded', 'false');
+  await expect(faqAnswer).toBeHidden();
 
   const email = page.locator('#cta-email');
   await email.scrollIntoViewIfNeeded();

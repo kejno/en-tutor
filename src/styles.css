@@ -8,6 +8,20 @@
 @media(max-width:767px){.section{padding-left:16px;padding-right:16px}}
 @media(max-width:480px){.section{padding-left:16px;padding-right:16px}.topic-tag{font-size:10px}.feature-card h3{font-size:15px}}
 @media(max-width:800px){.site-header>nav{display:none}.mobile-navigation{display:block;position:relative}.mobile-navigation summary{cursor:pointer;list-style:none;font-size:20px}.mobile-navigation summary::-webkit-details-marker{display:none}.site-header .mobile-navigation-links{display:flex;position:absolute;right:0;top:28px;z-index:4;width:220px;padding:10px 16px;background:#fff;border:1px solid #eee;box-shadow:0 8px 20px #0001}.mobile-navigation-links a{padding:10px 0}.header-actions>a:first-child{display:none}}
+
+.faq.section{max-width:none;min-height:452px;padding:60px 24px 68px;background:#fff;text-align:center;font-family:Arial,sans-serif}
+.faq .eyebrow{display:table;margin:0 auto 12px;padding:2px 8px;border:1px solid #91caff;border-radius:4px;background:#e6f4ff;color:#1677ff;font-size:12px;font-weight:400;letter-spacing:0;line-height:20px;text-transform:none}
+.faq h2{margin:0 0 36px;font-size:30px;font-weight:600;line-height:36px;letter-spacing:-.75px}
+.faq .faq-list{max-width:720px;margin:0 auto;border:1px solid #f0f0f0;border-radius:8px;background:#fff;text-align:left;font-family:Arial,sans-serif}
+.faq .ant-collapse-item{border-bottom:1px solid #f0f0f0}
+.faq .ant-collapse-item:last-child{border-bottom:0}
+.faq .ant-collapse-header{padding:0!important}
+.faq .faq-question{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;min-height:52px;padding:16px;border:0;border-radius:7px;background:#fff;color:#262626;text-align:left;font-size:14px;line-height:20px;cursor:pointer}
+.faq-question .anticon{color:#8c8c8c;font-size:10px}
+.faq-question:hover{background:#fafafa}
+.faq-question:focus-visible{outline:2px solid #1677ff;outline-offset:-3px}
+.faq .ant-collapse-content{border-top:1px solid #f0f0f0}
+.faq .ant-collapse-content p{margin:0;color:#595959;font-size:14px;line-height:22px}
 .final-cta{background:#fafafa;border:0;box-shadow:none;margin:0;max-width:none;padding:64px;min-height:483px;font-family:Arial,sans-serif}
 .final-cta-card{background:#fff;border:1px solid #e8e8e8;border-top:4px solid #1677ff;border-radius:6px;min-height:355px;padding:44px 24px 48px;max-width:1152px;margin:auto;box-shadow:0 2px 2px #00000003}
 .final-cta .section-heading{max-width:650px;margin:0 auto}

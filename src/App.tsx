@@ -17,6 +17,11 @@ const plans = [
 
 const faqItems = [
   {
+    id: 'comparison',
+    question: 'Is an AI tutor genuinely better than a human tutor?',
+    answer: 'Демо показывает, как FluentAI помогает практиковать английскую речь и получать обратную связь. Это демонстрация возможностей продукта, а не утверждение о превосходстве ИИ-репетитора над человеческим репетитором.',
+  },
+  {
     id: 'trial',
     question: 'How does the 7-day free trial work?',
     answer: 'The landing page offers a 7-day free trial. The form only shows a local confirmation because no server API is connected.',
