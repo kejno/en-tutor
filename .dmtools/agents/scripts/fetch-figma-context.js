@@ -17,6 +17,10 @@ if (!inputDir) {
 
 const requestPath = path.join(inputDir, 'request.md');
 const commentsPath = path.join(inputDir, 'comments.md');
+const cacheDir = process.env.FIGMA_CONTEXT_CACHE_DIR || path.resolve(__dirname, '../..', 'cache', 'figma');
+const cacheTtlMs = Number(process.env.FIGMA_CONTEXT_CACHE_TTL_MS || 24 * 60 * 60 * 1000);
+const maxRetries = Number(process.env.FIGMA_API_MAX_RETRIES || 3);
+const retryBaseMs = Number(process.env.FIGMA_API_RETRY_BASE_MS || 2000);
 const source = [requestPath, commentsPath]
   .filter(fs.existsSync)
   .map(file => fs.readFileSync(file, 'utf8'))
@@ -25,6 +29,10 @@ const source = [requestPath, commentsPath]
 function writeError(message) {
   fs.writeFileSync(path.join(inputDir, 'figma_context_error.md'),
     `⚠ BLOCKER: ${message}\n`, 'utf8');
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function findFigmaUrl(text) {
@@ -93,10 +101,77 @@ function selectTargetNode(nodes, requestedNodeId) {
   return frames.sort((a, b) => (b.bounds.width * b.bounds.height) - (a.bounds.width * a.bounds.height))[0] || null;
 }
 
+function retryDelayMs(response, attempt) {
+  const retryAfter = response && response.headers && response.headers.get('retry-after');
+  const seconds = Number(retryAfter);
+  if (Number.isFinite(seconds) && seconds >= 0) return Math.min(seconds * 1000, 30000);
+  return Math.min(retryBaseMs * Math.pow(2, attempt), 30000);
+}
+
 async function requestJson(url, token) {
-  const response = await fetch(url, { headers: { 'X-Figma-Token': token } });
-  if (!response.ok) throw new Error(`Figma API returned ${response.status}`);
-  return response.json();
+  let lastError;
+  for (let attempt = 0; attempt <= maxRetries; attempt += 1) {
+    try {
+      const response = await fetch(url, { headers: { 'X-Figma-Token': token } });
+      if (response.ok) return response.json();
+
+      const retryable = response.status === 429 || response.status >= 500;
+      if (!retryable || attempt === maxRetries) {
+        throw new Error(`Figma API returned ${response.status}`);
+      }
+      const delay = retryDelayMs(response, attempt);
+      console.warn(`Figma API returned ${response.status}; retrying in ${delay}ms (${attempt + 1}/${maxRetries})`);
+      await sleep(delay);
+    } catch (error) {
+      lastError = error;
+      if (attempt === maxRetries || /Figma API returned (?:4(?!29)\d|[1-3]\d\d)/.test(error.message || '')) {
+        throw error;
+      }
+      const delay = Math.min(retryBaseMs * Math.pow(2, attempt), 30000);
+      console.warn(`Figma request failed (${error.message}); retrying in ${delay}ms (${attempt + 1}/${maxRetries})`);
+      await sleep(delay);
+    }
+  }
+  throw lastError || new Error('Figma request failed');
+}
+
+function cachePath(parsed) {
+  const nodePart = (parsed.requestedNodeId || 'root').replace(/[^a-zA-Z0-9_-]/g, '_');
+  return path.join(cacheDir, `context-${parsed.fileKey}-${nodePart}.json`);
+}
+
+function readCachedContext(parsed) {
+  const file = cachePath(parsed);
+  if (!fs.existsSync(file)) return null;
+  try {
+    const cached = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (!cached.cachedAt || !cached.context || Date.now() - cached.cachedAt > cacheTtlMs) return null;
+    const context = cached.context;
+    if (context.fileKey !== parsed.fileKey) return null;
+    const requestedTarget = parsed.requestedNodeId && parsed.requestedNodeId.replace(/-/g, ':');
+    if (requestedTarget && (!context.target || context.target.id !== requestedTarget)) return null;
+    return context;
+  } catch (error) {
+    console.warn(`Ignoring unreadable Figma context cache: ${error.message}`);
+    return null;
+  }
+}
+
+function writeContext(context, parsed, updateCache = true) {
+  const contextPath = path.join(inputDir, 'figma_context.json');
+  fs.writeFileSync(contextPath, JSON.stringify(context, null, 2), 'utf8');
+  try { fs.unlinkSync(path.join(inputDir, 'figma_context_error.md')); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+  if (!updateCache) return;
+  fs.mkdirSync(cacheDir, { recursive: true });
+  fs.writeFileSync(cachePath(parsed), JSON.stringify({ cachedAt: Date.now(), context }, null, 2), 'utf8');
+}
+
+function restoreCachedImage(context) {
+  if (!context.referenceImage) return;
+  const cacheImage = path.join(cacheDir, context.referenceImage);
+  if (fs.existsSync(cacheImage)) {
+    fs.copyFileSync(cacheImage, path.join(inputDir, context.referenceImage));
+  }
 }
 
 async function main() {
@@ -116,6 +191,14 @@ async function main() {
   } catch (error) {
     writeError(`Figma URL could not be parsed: ${error.message}`);
     process.exitCode = 1;
+    return;
+  }
+
+  const cachedContext = readCachedContext(parsed);
+  if (cachedContext) {
+    console.log(`Using cached Figma context for ${parsed.fileKey}`);
+    writeContext(cachedContext, parsed, false);
+    restoreCachedImage(cachedContext);
     return;
   }
 
@@ -154,8 +237,7 @@ async function main() {
     instructions: 'For every visual Story, select the narrowest matching nodeCandidate and copy its id, name, URL, and bounds into stories.json.figma. Do not invent node IDs.',
   };
 
-  const contextPath = path.join(inputDir, 'figma_context.json');
-  fs.writeFileSync(contextPath, JSON.stringify(context, null, 2), 'utf8');
+  writeContext(context, parsed);
 
   try {
     const imageResponse = await requestJson(
@@ -167,7 +249,9 @@ async function main() {
       const imageName = `figma-reference-${target.id.replace(/:/g, '-')}.png`;
       fs.writeFileSync(path.join(inputDir, imageName), Buffer.from(await image.arrayBuffer()));
       context.referenceImage = imageName;
-      fs.writeFileSync(contextPath, JSON.stringify(context, null, 2), 'utf8');
+      fs.mkdirSync(cacheDir, { recursive: true });
+      fs.copyFileSync(path.join(inputDir, imageName), path.join(cacheDir, imageName));
+      writeContext(context, parsed);
     }
   } catch (error) {
     // The node map remains usable even if the image endpoint is unavailable.

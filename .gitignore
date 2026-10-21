@@ -16,6 +16,7 @@ test-results/
 .dmtools/outputs/
 /outputs/
 .dmtools/cacheBasicJiraClient/
+.dmtools/cache/figma/
 .claude-session-id
 
 .dmtools/.dmtools-logs/

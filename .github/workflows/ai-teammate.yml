@@ -193,6 +193,17 @@ jobs:
           path: ~/.dmtools
           key: dmtools-release-latest-${{ runner.os }}
 
+      # Figma throttles file reads. Keep successful, token-free node maps
+      # between runners; each run writes a new cache entry while restoring the
+      # newest compatible one first.
+      - name: Cache Figma intake context
+        uses: actions/cache@v4
+        with:
+          path: .dmtools/cache/figma
+          key: figma-context-v1-${{ runner.os }}-${{ hashFiles('.dmtools/agents/scripts/fetch-figma-context.js') }}-${{ github.run_id }}
+          restore-keys: |
+            figma-context-v1-${{ runner.os }}-${{ hashFiles('.dmtools/agents/scripts/fetch-figma-context.js') }}-
+
       - name: Install DMTools CLI
         if: steps.cache-dmtools.outputs.cache-hit != 'true'
         run: |
