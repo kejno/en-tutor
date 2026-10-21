@@ -35,3 +35,7 @@ To fill or refresh the cache before running an intake, use GitHub Actions →
 **Prewarm Figma context** → **Run workflow**, and provide the Figma design URL.
 This workflow reads only `FIGMA_TOKEN`, writes no Jira tickets, and shares the
 same lock with intake.
+
+The SM intake rule automatically detects a Figma URL in an Epic, runs this
+prewarm workflow first, and dispatches intake only after it succeeds. Epics
+without a Figma URL continue through intake directly.

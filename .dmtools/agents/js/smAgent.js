@@ -72,6 +72,9 @@
  *                               (default: agents/scripts/run-teammate-local.sh)
  *   allowBlockedParent (optional) — if true, allow a child issue to run while its
  *                               parent Epic is Blocked (default: false)
+ *   prewarmFigma (optional) — for an intake Epic with a Figma URL, dispatch the
+ *                               Figma prewarm workflow first. On success it
+ *                               dispatches the original intake payload.
  */
 
 var configLoader = require('./configLoader.js');
@@ -273,6 +276,7 @@ function hasActiveTargetWorkflowRun(scm, workflowFile, configFile, ticketKey) {
     var shortAgentName = configFile.substring(configFile.lastIndexOf('/') + 1).replace(/\.json$/, '');
     var currentRunNames = [
         'Team (' + shortAgentName + ':' + ticketKey + ',',
+        'Prewarm Figma (' + ticketKey + ')',
         'Team (' + configFile + ' · ' + ticketKey + ')',
         'Team (' + shortAgentName + ' · ' + ticketKey + ')',
         // Backwards compatibility for runs created before the workflow rename.
@@ -560,6 +564,20 @@ function isWorkflowBudgetExhausted(rule, effectiveConfig, workflowBudget) {
     return providerBudgetBucket(workflowBudget, provider).remaining <= 0;
 }
 
+function findFigmaUrlForTicket(ticketKey) {
+    try {
+        var raw = jira_get_ticket({ key: ticketKey });
+        var ticket = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        // JSON.stringify also covers Jira's ADF description representation.
+        var text = JSON.stringify(ticket || {});
+        var match = /https?:\/\/www\.figma\.com\/(?:design|file)\/[^\s)\]}>"]+/i.exec(text);
+        return match ? match[0].replace(/\\&/g, '&') : '';
+    } catch (error) {
+        console.warn('  ⚠️  Could not read Figma URL for ' + ticketKey + ': ' + (error.message || error));
+        return '';
+    }
+}
+
 function triggerWorkflow(repoInfo, ticketKey, ticket, rule, effectiveConfig, workflowBudget) {
     var workflowFile = rule.workflowFile || 'ai-teammate.yml';
     var workflowRef  = rule.workflowRef  || 'main';
@@ -567,6 +585,12 @@ function triggerWorkflow(repoInfo, ticketKey, ticket, rule, effectiveConfig, wor
     var concurrencyKey = resolveRuleConcurrencyKey(rule, ticketKey, ticket, effectiveConfig);
     var resolvedProvider = resolveRuleProvider(rule, workflowBudget);
     var resolvedModel = buildEncodedConfigModule.resolveAgentModel(rule, effectiveConfig);
+    var prewarmFigmaUrl = '';
+    var dispatchWorkflowFile = workflowFile;
+    if (rule.prewarmFigma && resolvedCf === 'agents/intake.json') {
+        prewarmFigmaUrl = findFigmaUrlForTicket(ticketKey);
+        if (prewarmFigmaUrl) dispatchWorkflowFile = 'prewarm-figma-context.yml';
+    }
 
     // Resolve project_key: explicit rule field takes priority, then auto-derive from configPath
     // e.g. ".dmtools/configs/myproject.js" → "myproject", ".dmtools/configs/bice.js" → "bice"
@@ -590,7 +614,7 @@ function triggerWorkflow(repoInfo, ticketKey, ticket, rule, effectiveConfig, wor
             logBlockingWorkflowRuns(bucket, workflowFile);
             return false;
         }
-        if (hasActiveTargetWorkflowRun(scm, workflowFile, resolvedCf, concurrencyKey)) {
+        if (hasActiveTargetWorkflowRun(scm, dispatchWorkflowFile, resolvedCf, concurrencyKey)) {
             return false;
         }
         // resolvedProvider ('claude-code' | 'codex' | 'codex-1' | 'codex-2')
@@ -623,15 +647,31 @@ function triggerWorkflow(repoInfo, ticketKey, ticket, rule, effectiveConfig, wor
             model:           resolvedModel
         };
 
+        // Figma API rate limits are shared by all runner jobs. A design intake
+        // therefore warms its token-free context cache before it can consume an
+        // intake slot. The prewarm workflow dispatches this exact payload only
+        // after a successful fetch, preserving the normal intake behaviour for
+        // Epics without a Figma URL.
+        var dispatchPayloadForWorkflow = dispatchPayload;
+        if (prewarmFigmaUrl) {
+                dispatchPayloadForWorkflow = {
+                    figma_url: prewarmFigmaUrl,
+                    ticket_key: ticketKey,
+                    intake_payload: encodeURIComponent(JSON.stringify(dispatchPayload)),
+                    intake_ref: workflowRef
+                };
+                console.log('  ♨️  ' + ticketKey + ' has a Figma URL — prewarming context before intake');
+        }
+
         scm.triggerWorkflow(
             repoInfo.owner,
             repoInfo.repo,
-            workflowFile,
-            JSON.stringify(dispatchPayload),
+            dispatchWorkflowFile,
+            JSON.stringify(dispatchPayloadForWorkflow),
             workflowRef
         );
         reservedConcurrencyKeys[concurrencyKey] = true;
-        console.log('  ✅ Triggered ' + workflowFile + '@' + workflowRef + ' for ' + ticketKey +
+        console.log('  ✅ Triggered ' + dispatchWorkflowFile + '@' + workflowRef + ' for ' + ticketKey +
             (projectKey ? ' [project_key=' + projectKey + ']' : ''));
         return true;
     } catch (e) {
@@ -1064,8 +1104,11 @@ function processRule(rule, globalRepoInfo, ruleIndex, workflowBudget) {
             // Stale-label recovery is based on inspecting active GitHub Actions runs — not
             // meaningful for localTeammate (there is no async run to inspect); just skip.
             if (!rule.localTeammate && shouldRecoverStaleTriggerLabel(rule, skipLabel)) {
-                var workflowFile = rule.workflowFile || 'ai-teammate.yml';
                 var resolvedCf = buildEncodedConfigModule.resolveConfigFile(rule, effectiveConfig);
+                var workflowFile = rule.workflowFile || 'ai-teammate.yml';
+                if (rule.prewarmFigma && resolvedCf === 'agents/intake.json' && findFigmaUrlForTicket(key)) {
+                    workflowFile = 'prewarm-figma-context.yml';
+                }
                 var scm = scmModule.createScm(effectiveConfig);
                 var activeKey = resolveRuleConcurrencyKey(rule, key, ticket, effectiveConfig);
                 if (hasActiveTargetWorkflowRun(scm, workflowFile, resolvedCf, activeKey)) {

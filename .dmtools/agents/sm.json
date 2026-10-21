@@ -18,6 +18,7 @@
           "description": "Backlog / To Do Epics → decompose into Story tickets (intake)",
           "jql": "project = {jiraProject} AND issuetype in ('Epic') AND status in ('Backlog', 'To Do')",
           "configFile": "agents/intake.json",
+          "prewarmFigma": true,
           "skipIfLabel": "sm_epic_intake_triggered",
           "addLabel": "sm_epic_intake_triggered",
           "limit": 1,

@@ -1,4 +1,5 @@
 name: Prewarm Figma context
+run-name: "Prewarm Figma (${{ inputs.ticket_key || 'manual' }})"
 
 on:
   workflow_dispatch:
@@ -7,9 +8,23 @@ on:
         description: 'Figma design/file URL to cache for later intake runs'
         required: true
         type: string
+      ticket_key:
+        description: 'Epic key for an SM-triggered prewarm; blank for manual runs'
+        required: false
+        type: string
+      intake_payload:
+        description: 'URL-encoded ai-teammate workflow inputs; supplied automatically by SM'
+        required: false
+        type: string
+      intake_ref:
+        description: 'Git ref for the deferred intake dispatch'
+        required: false
+        default: main
+        type: string
 
 permissions:
   contents: read
+  actions: write
 
 jobs:
   prewarm:
@@ -50,3 +65,23 @@ jobs:
           fi
           test -f "${input_dir}/figma_context.json"
           echo "Figma context cached successfully."
+
+      # SM supplies the original intake inputs. This keeps prewarm and intake
+      # strictly sequential: an intake starts only after the cache is usable.
+      - name: Dispatch deferred intake
+        if: ${{ inputs.intake_payload != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_PROJECT_TOKEN }}
+          INTAKE_PAYLOAD: ${{ inputs.intake_payload }}
+          INTAKE_REF: ${{ inputs.intake_ref }}
+        run: |
+          node <<'NODE'
+          const { execFileSync } = require('node:child_process');
+          const payload = JSON.parse(decodeURIComponent(process.env.INTAKE_PAYLOAD));
+          const args = ['workflow', 'run', 'ai-teammate.yml', '--repo', process.env.GITHUB_REPOSITORY,
+            '--ref', process.env.INTAKE_REF || 'main'];
+          for (const [key, value] of Object.entries(payload)) {
+            if (value !== undefined && value !== null && value !== '') args.push('--raw-field', `${key}=${value}`);
+          }
+          execFileSync('gh', args, { stdio: 'inherit' });
+          NODE
