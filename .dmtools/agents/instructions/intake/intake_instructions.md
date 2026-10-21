@@ -4,6 +4,7 @@ flowchart TD
         I1["input/request.md — raw ticket description"]
         I2["input/existing_epics.json — {epics: [{key, summary, description, priority, diagrams, parent}]}"]
         I3["input/existing_stories.json — {stories: [{key, summary, status, priority, diagrams, parent}]}"]
+        I4["input/figma_context.json — exact Figma node candidates and desktop reference image, when a Figma URL is present"]
     end
 
     subgraph TASK["Task"]
@@ -17,6 +18,7 @@ flowchart TD
         T5["Write outputs/comment.md — tracker-formatted summary"]
         T6["Bug request → type Bug, bug-N.md, no Epics/Stories"]
         T7["Too vague → explain in comment.md, write [] to stories.json"]
+        T8["For visual Figma Stories: copy one exact node mapping into each stories.json entry"]
     end
 
     subgraph E2E["E2E User Journey Check"]
@@ -40,6 +42,7 @@ flowchart TD
         R10["NEVER create an Epic with zero child Stories in the same run. Every new Epic MUST be created together with at least its first actionable Stories in this same run — an Epic without Stories is not a valid output. If an Epic's full scope is too large to fully decompose in one pass, still create as many Stories as are known/actionable now, and explicitly list the remaining not-yet-decomposed slices in the Epic's own description Notes section — never leave the Epic itself as an empty placeholder"]
         R11["Before writing any description .md file: replace every generic placeholder tag with the tracker-specific markup from the transform table for this run's tracker (e.g. `agents/instructions/tracker/jira_markup_transform.md` for Jira). Never write literal placeholder tags or raw Markdown headings/bullets straight into a tracker description — same rule as `story_questions`"]
         R12["existing_epics.json / existing_stories.json are freshly fetched from the live tracker THIS run and are the SOLE authoritative record of which tickets currently exist. Never treat a key mentioned only in comments.md / a prior run's summary / memory as still existing if it's absent from these freshly fetched files — it may have been deleted. If they seem inconsistent with a prior comment, the fresh files are correct; do not rationalize the mismatch as an 'environment quirk' and fall back to stale text. Confirm every parent/blockedBy/integrates key against these files before use"]
+        R13["When figma_context.json exists, use it as the authoritative node map and add exact mappings to visual Stories. Figma is optional unless the Epic has label figma_required: then every Story MUST contain a valid mapping and figma_context_error.md is a blocker. Without the label, continue normal intake and never guess node IDs."]
     end
 
     INPUTS --> TASK
