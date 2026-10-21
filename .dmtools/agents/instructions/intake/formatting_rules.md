@@ -19,9 +19,9 @@
 | `parent` | string \| null | Real tracker key, `tempId`, or `null` for Epic |
 | `tempId` | string | Optional, unique identifier for new Epics referenced by Stories |
 | `priority` | string | `Highest`, `High`, `Medium`, `Low`, `Lowest` |
-| `storyPoints` | integer | Stories only, max 5 |
-| `blockedBy` | array | Of `tempId` or real keys; sets `Blocked` status |
-| `integrates` | array | Of `tempId` or real keys; parallel merge, do NOT add to `blockedBy` |
+| `storyPoints` | integer | Required for every Story: 1–5 only. Split anything larger into vertical slices. |
+| `blockedBy` | array | Only true prerequisite `tempId` or verified real Jira keys; creates native `Blocks` links and sets the Story to `Blocked`. |
+| `integrates` | array | Verified `tempId` or real Jira keys for independently deliverable parallel work that must be combined; creates native `Relates` links. Never duplicate a `blockedBy` reference. |
 | `attachments` | array | Relative paths to files copied under `outputs/attachments/` |
 | `figma` | object | Optional exact Figma source for a Story. Add it when `input/figma_context.json` is available. See below. |
 
@@ -42,6 +42,15 @@ When `input/figma_context.json` exists, read it before creating Stories. Add a `
 The Story description must name the selected node and link to `figma.url`. If Figma is absent or `figma_context_error.md` exists, continue normal intake; mention unavailable Figma context in `comment.md` only when it is relevant to the requested work.
 
 Add the Jira label `figma_required` to an Epic when its design must be implemented from Figma. In that strict mode, every created Story must have a valid `figma` object. If Figma cannot be read or a node cannot be mapped, intake stops without creating Stories.
+
+### Vertical-slice and dependency rules
+
+- A Story must deliver one thin, observable user outcome end-to-end: UI/entry point (where applicable), application behaviour, data/API integration needed for that outcome, and acceptance-test coverage.
+- Do not split ordinary product work into horizontal tickets such as “build UI”, “build API”, “write tests”, or “wire integration”. Split by independently reviewable user outcome instead.
+- `storyPoints` is required and must be an integer from 1 through 5. If the outcome is larger, slice it by workflow step, user role, bounded scenario, or supported variation.
+- Use `blockedBy` only when the blocked Story genuinely cannot start or be verified before the prerequisite is complete. Do not use it merely because two Stories touch the same feature.
+- Use `integrates` for parallel Stories that have an explicit merge/contract point; otherwise leave both arrays empty so the team can work in parallel.
+- A dependency may reference a unique `tempId` from this plan or an existing Jira key that was verified in the freshly fetched tracker files. Never reference itself, repeat a reference, or place the same reference in both arrays.
 
 ### Bug-specific rules
 
