@@ -39,3 +39,20 @@ same lock with intake.
 The SM intake rule automatically detects a Figma URL in an Epic, runs this
 prewarm workflow first, and dispatches intake only after it succeeds. Epics
 without a Figma URL continue through intake directly.
+
+### Local Codex + Figma MCP
+
+When REST is rate-limited, use the authenticated local Figma MCP connection to
+produce a compact context containing fileKey, target, and nodeCandidates.
+Save that context with:
+
+    node .dmtools/agents/scripts/save-figma-mcp-context.js \
+      'https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app' \
+      /path/to/figma-mcp-context.json \
+      /path/to/desktop-reference.png
+
+Commit only .dmtools/figma-context/ to the repository. It contains node
+metadata and optional reference images, never the Figma token or full document.
+The intake fetcher checks this repository snapshot first, then the GitHub
+Actions cache, and uses REST only as a last resort. Snapshots are accepted for
+seven days by default; refresh them after a significant design change.

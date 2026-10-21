@@ -18,7 +18,9 @@ if (!inputDir) {
 const requestPath = path.join(inputDir, 'request.md');
 const commentsPath = path.join(inputDir, 'comments.md');
 const cacheDir = process.env.FIGMA_CONTEXT_CACHE_DIR || path.resolve(__dirname, '../..', 'cache', 'figma');
+const repositoryContextDir = process.env.FIGMA_CONTEXT_REPO_DIR || path.resolve(__dirname, '../..', 'figma-context');
 const cacheTtlMs = Number(process.env.FIGMA_CONTEXT_CACHE_TTL_MS || 24 * 60 * 60 * 1000);
+const repositoryContextTtlMs = Number(process.env.FIGMA_CONTEXT_REPO_TTL_MS || 7 * 24 * 60 * 60 * 1000);
 const maxRetries = Number(process.env.FIGMA_API_MAX_RETRIES || 3);
 const retryBaseMs = Number(process.env.FIGMA_API_RETRY_BASE_MS || 2000);
 const maxInlineRetryMs = Number(process.env.FIGMA_API_MAX_INLINE_RETRY_MS || 30000);
@@ -160,6 +162,29 @@ function cachePath(parsed) {
   return path.join(cacheDir, `context-${parsed.fileKey}-${nodePart}.json`);
 }
 
+function repositoryContextPath(parsed) {
+  const nodePart = (parsed.requestedNodeId || 'root').replace(/[^a-zA-Z0-9_-]/g, '_');
+  return path.join(repositoryContextDir, 'context-' + parsed.fileKey + '-' + nodePart + '.json');
+}
+
+function readRepositoryContext(parsed) {
+  const file = repositoryContextPath(parsed);
+  if (!fs.existsSync(file)) return null;
+  try {
+    const snapshot = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (!snapshot.cachedAt || !snapshot.context ||
+        Date.now() - snapshot.cachedAt > repositoryContextTtlMs) return null;
+    const context = snapshot.context;
+    if (context.fileKey !== parsed.fileKey) return null;
+    const requestedTarget = parsed.requestedNodeId && parsed.requestedNodeId.replace(/-/g, ':');
+    if (requestedTarget && (!context.target || context.target.id !== requestedTarget)) return null;
+    return context;
+  } catch (error) {
+    console.warn('Ignoring unreadable repository Figma context: ' + error.message);
+    return null;
+  }
+}
+
 function backoffPath(parsed) {
   const nodePart = (parsed.requestedNodeId || 'root').replace(/[^a-zA-Z0-9_-]/g, '_');
   return path.join(cacheDir, `backoff-${parsed.fileKey}-${nodePart}.json`);
@@ -225,16 +250,17 @@ function restoreCachedImage(context) {
   }
 }
 
+function restoreRepositoryImage(context) {
+  if (!context.referenceImage) return;
+  const snapshotImage = path.join(repositoryContextDir, path.basename(context.referenceImage));
+  if (fs.existsSync(snapshotImage)) {
+    fs.copyFileSync(snapshotImage, path.join(inputDir, path.basename(context.referenceImage)));
+  }
+}
+
 async function main() {
   const href = findFigmaUrl(source);
   if (!href) return;
-
-  const token = process.env.FIGMA_TOKEN || process.env.FIGMA_API_KEY;
-  if (!token) {
-    writeError('Figma URL found, but FIGMA_TOKEN (or FIGMA_API_KEY) is not configured.');
-    process.exitCode = 1;
-    return;
-  }
 
   let parsed;
   try {
@@ -245,11 +271,26 @@ async function main() {
     return;
   }
 
+  const repositoryContext = readRepositoryContext(parsed);
+  if (repositoryContext) {
+    console.log('Using repository Figma MCP context for ' + parsed.fileKey);
+    writeContext(repositoryContext, parsed, false);
+    restoreRepositoryImage(repositoryContext);
+    return;
+  }
+
   const cachedContext = readCachedContext(parsed);
   if (cachedContext) {
     console.log(`Using cached Figma context for ${parsed.fileKey}`);
     writeContext(cachedContext, parsed, false);
     restoreCachedImage(cachedContext);
+    return;
+  }
+
+  const token = process.env.FIGMA_TOKEN || process.env.FIGMA_API_KEY;
+  if (!token) {
+    writeError('Figma URL found, but no repository/MCP context is available and FIGMA_TOKEN (or FIGMA_API_KEY) is not configured.');
+    process.exitCode = 1;
     return;
   }
 
