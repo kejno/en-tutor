@@ -16,8 +16,7 @@
     "preCliJSAction": "agents/js/prepareTestPRForReview.js",
     "postJSAction": "agents/js/postStoryTestAutomationReview.js",
     "customParams": {
-      "removeLabel": "sm_story_test_review_triggered",
-      "checkOpenPR": true
+      "removeLabel": "sm_story_test_review_triggered"
     },
     "inputJql": "key = ET-0",
     "cliPrompts": [

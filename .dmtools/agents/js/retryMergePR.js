@@ -62,6 +62,61 @@ function findBranchKeyForTicket(ticketKey, jiraConfig) {
     }
 }
 
+function resolveTestCaseFinalStatus(currentStatus, jiraConfig) {
+    if (currentStatus === jiraConfig.statuses.IN_REVIEW_PASSED) return jiraConfig.statuses.PASSED;
+    if (currentStatus === jiraConfig.statuses.IN_REVIEW_FAILED) return jiraConfig.statuses.FAILED;
+    return null;
+}
+
+// A test-automation PR is shared by all Test Cases linked to a Story/Bug. The
+// review rule is triggered by an individual Test Case, but the branch and PR
+// belong to its parent. Finalize both sides after merge so the parent-level SM
+// review rule cannot immediately enqueue the already-merged PR again.
+function finalizeSharedTestPr(parentKey, triggeringTicketKey, jiraConfig) {
+    var testCaseType = jiraConfig.issueTypes.TEST_CASE || 'Test Case';
+    var testCases = [];
+    try {
+        testCases = jira_search_by_jql({
+            jql: 'issue in linkedIssues("' + parentKey + '") AND issuetype = "' + testCaseType + '"',
+            maxResults: 100,
+            fields: ['key', 'status']
+        }) || [];
+    } catch (e) {
+        console.warn('Could not fetch linked Test Cases for', parentKey + ':', e);
+    }
+
+    if (!testCases.some(function(tc) { return tc.key === triggeringTicketKey; })) {
+        try {
+            var triggeringTicket = jira_get_ticket({ key: triggeringTicketKey });
+            if (triggeringTicket) testCases.push(triggeringTicket);
+        } catch (e) {
+            console.warn('Could not refresh triggering Test Case', triggeringTicketKey + ':', e);
+        }
+    }
+
+    testCases.forEach(function(tc) {
+        var currentStatus = tc.fields && tc.fields.status ? tc.fields.status.name : '';
+        var finalStatus = resolveTestCaseFinalStatus(currentStatus, jiraConfig);
+        if (!finalStatus) {
+            console.log('Skipping linked Test Case', tc.key, '— current status', currentStatus);
+            return;
+        }
+        try {
+            jira_move_to_status({ key: tc.key, statusName: finalStatus });
+            console.log('✅ Moved', tc.key, 'to', finalStatus);
+        } catch (e) {
+            console.warn('Could not move linked Test Case', tc.key, 'to', finalStatus + ':', e);
+        }
+    });
+
+    try {
+        jira_add_label({ key: parentKey, label: LABELS.TEST_PR_FINALIZED });
+        console.log('✅ Added test_pr_finalized label to parent', parentKey);
+    } catch (e) {
+        console.warn('Could not add test_pr_finalized to parent', parentKey + ':', e);
+    }
+}
+
 function getGitHubRepoInfo() {
     try {
         const rawOutput = cli_execute_command({ command: 'git config --get remote.origin.url' }) || '';
@@ -273,13 +328,9 @@ function action(params) {
         // the next SM rule runs its JQL, the ticket would still appear as "In Review".
         // Keeping pr_approved on the Jira ticket until after the status move means
         // the review-trigger rule (JQL: NOT IN pr_approved) naturally skips the ticket.
-        const isTestCase = params.jobParams && params.jobParams.customParams && params.jobParams.customParams.testCaseMerge;
+        const isTestCase = customParams && customParams.testCaseMerge;
         if (isTestCase) {
-            var ticketDetail = jira_get_ticket({ key: ticketKey });
-            var currentStatus = ticketDetail && ticketDetail.fields && ticketDetail.fields.status && ticketDetail.fields.status.name;
-            var finalStatus = (currentStatus === jiraConfig.statuses.IN_REVIEW_PASSED) ? jiraConfig.statuses.PASSED : jiraConfig.statuses.FAILED;
-            jira_move_to_status({ key: ticketKey, statusName: finalStatus });
-            console.log('✅ Ticket moved to ' + finalStatus);
+            finalizeSharedTestPr(branchKey, ticketKey, jiraConfig);
         } else {
             jira_move_to_status({ key: ticketKey, statusName: jiraConfig.statuses.MERGED });
             console.log('✅ Ticket moved to Merged');
