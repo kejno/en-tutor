@@ -21,10 +21,10 @@ function action(params) {
 
     try {
         cli_execute_command({
-            // GitHub Actions runs dmtools from .dmtools, while the local
-            // teammate runner starts from the repository root. Resolve the
-            // script from either working directory instead of assuming one.
-            command: 'bash -c \'if [ -f agents/scripts/fetch-figma-context.sh ]; then script="agents/scripts/fetch-figma-context.sh"; else script=".dmtools/agents/scripts/fetch-figma-context.sh"; fi; exec bash "$script" ' + folder + '\''
+            // ai-teammate.yml runs dmtools from .dmtools, so this path is
+            // relative to that working directory. Keep the command direct:
+            // DMTools' CLI executor does not reliably support nested bash -c.
+            command: 'bash agents/scripts/fetch-figma-context.sh ' + folder
         });
     } catch (error) {
         // The script itself writes figma_context_error.md, which tells intake to
