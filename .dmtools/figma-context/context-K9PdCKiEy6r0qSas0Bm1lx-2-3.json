@@ -1,0 +1,153 @@
+{
+  "cachedAt": 1792593690758,
+  "context": {
+    "fileKey": "K9PdCKiEy6r0qSas0Bm1lx",
+    "sourceUrl": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-3",
+    "target": {
+      "id": "2:3",
+      "name": "Main",
+      "bounds": {
+        "x": 0,
+        "y": 65,
+        "width": 1280,
+        "height": 5611.3798828125
+      }
+    },
+    "referenceImage": "reference-2-3.png",
+    "nodeCandidates": [
+      {
+        "id": "2:3",
+        "name": "Main",
+        "type": "FRAME",
+        "bounds": {
+          "x": 0,
+          "y": 65,
+          "width": 1280,
+          "height": 5611.3798828125
+        },
+        "url": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-3"
+      },
+      {
+        "id": "2:395",
+        "name": "Section - HERO SECTION",
+        "type": "FRAME",
+        "bounds": {
+          "x": 0,
+          "y": 0,
+          "width": 1280,
+          "height": 959.875
+        },
+        "url": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-395"
+      },
+      {
+        "id": "2:4",
+        "name": "Section - LOGO / INSTITUTION TRUST BANNER",
+        "type": "FRAME",
+        "bounds": {
+          "x": 0,
+          "y": 959.88,
+          "width": 1280,
+          "height": 125
+        },
+        "url": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-4"
+      },
+      {
+        "id": "2:21",
+        "name": "Section - THE 3-STEP RAPID FLUENCY METHOD",
+        "type": "FRAME",
+        "bounds": {
+          "x": 0,
+          "y": 1084.88,
+          "width": 1280,
+          "height": 544
+        },
+        "url": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-21"
+      },
+      {
+        "id": "2:70",
+        "name": "Section - PERSONALIZED LEARNING PATHS (ANT DESIGN SEGMENTED TABS)",
+        "type": "FRAME",
+        "bounds": {
+          "x": 0,
+          "y": 1629.38,
+          "width": 1280,
+          "height": 673
+        },
+        "url": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-70"
+      },
+      {
+        "id": "2:164",
+        "name": "Section - BENTO GRID (ANT DESIGN CARD DECK)",
+        "type": "FRAME",
+        "bounds": {
+          "x": 0,
+          "y": 2300.88,
+          "width": 1280,
+          "height": 833
+        },
+        "url": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-164"
+      },
+      {
+        "id": "2:248",
+        "name": "Section - ANT DESIGN STATISTIC COMPONENT GRID (NUMERICAL PROOF)",
+        "type": "FRAME",
+        "bounds": {
+          "x": 0,
+          "y": 3133.88,
+          "width": 1280,
+          "height": 247
+        },
+        "url": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-248"
+      },
+      {
+        "id": "2:278",
+        "name": "Section - TESTIMONIALS (ANT DESIGN CARDS WITH AVATARS)",
+        "type": "FRAME",
+        "bounds": {
+          "x": 0,
+          "y": 3380.88,
+          "width": 1280,
+          "height": 538
+        },
+        "url": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-278"
+      },
+      {
+        "id": "2:575",
+        "name": "Section - ANT DESIGN PRICING CARDS",
+        "type": "FRAME",
+        "bounds": {
+          "x": 0,
+          "y": 3918.88,
+          "width": 1280,
+          "height": 758
+        },
+        "url": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-575"
+      },
+      {
+        "id": "2:363",
+        "name": "Section - ANT DESIGN COLLAPSE (FAQ)",
+        "type": "FRAME",
+        "bounds": {
+          "x": 0,
+          "y": 4676.88,
+          "width": 1280,
+          "height": 452
+        },
+        "url": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-363"
+      },
+      {
+        "id": "2:706",
+        "name": "Section - CLOSING CALL-TO-ACTION (ANT DESIGN HERO CALLOUT)",
+        "type": "FRAME",
+        "bounds": {
+          "x": 0,
+          "y": 5128.88,
+          "width": 1280,
+          "height": 483
+        },
+        "url": "https://www.figma.com/design/K9PdCKiEy6r0qSas0Bm1lx/en-app?node-id=2-706"
+      }
+    ],
+    "instructions": "Use the exact nodeCandidates for story-to-Figma mapping. Desktop reference only; no mobile design was provided."
+  }
+}
