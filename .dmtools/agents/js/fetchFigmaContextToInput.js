@@ -21,7 +21,10 @@ function action(params) {
 
     try {
         cli_execute_command({
-            command: 'bash .dmtools/agents/scripts/fetch-figma-context.sh ' + folder
+            // GitHub Actions runs dmtools from .dmtools, while the local
+            // teammate runner starts from the repository root. Resolve the
+            // script from either working directory instead of assuming one.
+            command: 'bash -c \'if [ -f agents/scripts/fetch-figma-context.sh ]; then script="agents/scripts/fetch-figma-context.sh"; else script=".dmtools/agents/scripts/fetch-figma-context.sh"; fi; exec bash "$script" ' + folder + '\''
         });
     } catch (error) {
         // The script itself writes figma_context_error.md, which tells intake to
