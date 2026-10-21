@@ -4,7 +4,7 @@ test('BNP-581: действие первого экрана выполняетс
   await page.goto('/');
 
   await page.getByTestId('trial-cta').click();
-  await expect(page.getByRole('status')).toContainText('Пробный период скоро будет доступен');
+  await expect(page.getByRole('status')).toContainText('Демонстрационный режим активирован. Регистрация аккаунта не требуется.');
 
   await page.getByRole('link', { name: 'Watch 2-Min Live Demo' }).click();
   await expect(page).toHaveURL(/#live-coach$/);
