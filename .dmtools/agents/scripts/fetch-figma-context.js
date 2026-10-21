@@ -21,9 +21,11 @@ const cacheDir = process.env.FIGMA_CONTEXT_CACHE_DIR || path.resolve(__dirname, 
 const cacheTtlMs = Number(process.env.FIGMA_CONTEXT_CACHE_TTL_MS || 24 * 60 * 60 * 1000);
 const maxRetries = Number(process.env.FIGMA_API_MAX_RETRIES || 3);
 const retryBaseMs = Number(process.env.FIGMA_API_RETRY_BASE_MS || 2000);
-const source = [requestPath, commentsPath]
-  .filter(fs.existsSync)
-  .map(file => fs.readFileSync(file, 'utf8'))
+const maxInlineRetryMs = Number(process.env.FIGMA_API_MAX_INLINE_RETRY_MS || 30000);
+const source = [process.env.FIGMA_SOURCE_URL]
+  .filter(Boolean)
+  .concat([requestPath, commentsPath].filter(fs.existsSync))
+  .map(file => fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : file)
   .join('\n');
 
 function writeError(message) {
@@ -104,8 +106,16 @@ function selectTargetNode(nodes, requestedNodeId) {
 function retryDelayMs(response, attempt) {
   const retryAfter = response && response.headers && response.headers.get('retry-after');
   const seconds = Number(retryAfter);
-  if (Number.isFinite(seconds) && seconds >= 0) return Math.min(seconds * 1000, 30000);
-  return Math.min(retryBaseMs * Math.pow(2, attempt), 30000);
+  if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1000;
+  return Math.min(retryBaseMs * Math.pow(2, attempt), maxInlineRetryMs);
+}
+
+function rateLimitError(response, attempt) {
+  const delay = retryDelayMs(response, attempt);
+  const error = new Error(`Figma API returned 429; retry after ${new Date(Date.now() + delay).toISOString()}`);
+  error.isFigmaRateLimit = true;
+  error.retryAt = Date.now() + delay;
+  return error;
 }
 
 async function requestJson(url, token) {
@@ -116,6 +126,16 @@ async function requestJson(url, token) {
       if (response.ok) return response.json();
 
       const retryable = response.status === 429 || response.status >= 500;
+      if (response.status === 429) {
+        const error = rateLimitError(response, attempt);
+        if (attempt === maxRetries || error.retryAt - Date.now() > maxInlineRetryMs) {
+          throw error;
+        }
+        const delay = Math.max(0, error.retryAt - Date.now());
+        console.warn(`Figma API returned 429; retrying in ${delay}ms (${attempt + 1}/${maxRetries})`);
+        await sleep(delay);
+        continue;
+      }
       if (!retryable || attempt === maxRetries) {
         throw new Error(`Figma API returned ${response.status}`);
       }
@@ -124,7 +144,7 @@ async function requestJson(url, token) {
       await sleep(delay);
     } catch (error) {
       lastError = error;
-      if (attempt === maxRetries || /Figma API returned (?:4(?!29)\d|[1-3]\d\d)/.test(error.message || '')) {
+      if (error.isFigmaRateLimit || attempt === maxRetries || /Figma API returned (?:4(?!29)\d|[1-3]\d\d)/.test(error.message || '')) {
         throw error;
       }
       const delay = Math.min(retryBaseMs * Math.pow(2, attempt), 30000);
@@ -138,6 +158,37 @@ async function requestJson(url, token) {
 function cachePath(parsed) {
   const nodePart = (parsed.requestedNodeId || 'root').replace(/[^a-zA-Z0-9_-]/g, '_');
   return path.join(cacheDir, `context-${parsed.fileKey}-${nodePart}.json`);
+}
+
+function backoffPath(parsed) {
+  const nodePart = (parsed.requestedNodeId || 'root').replace(/[^a-zA-Z0-9_-]/g, '_');
+  return path.join(cacheDir, `backoff-${parsed.fileKey}-${nodePart}.json`);
+}
+
+function readBackoff(parsed) {
+  const file = backoffPath(parsed);
+  if (!fs.existsSync(file)) return null;
+  try {
+    const backoff = JSON.parse(fs.readFileSync(file, 'utf8'));
+    if (Number.isFinite(backoff.retryAt) && backoff.retryAt > Date.now()) return backoff;
+    fs.unlinkSync(file);
+  } catch (error) {
+    console.warn(`Ignoring unreadable Figma backoff cache: ${error.message}`);
+  }
+  return null;
+}
+
+function writeBackoff(parsed, error) {
+  fs.mkdirSync(cacheDir, { recursive: true });
+  fs.writeFileSync(backoffPath(parsed), JSON.stringify({
+    retryAt: error.retryAt || Date.now() + 5 * 60 * 1000,
+    message: error.message,
+    cachedAt: Date.now()
+  }, null, 2), 'utf8');
+}
+
+function clearBackoff(parsed) {
+  try { fs.unlinkSync(backoffPath(parsed)); } catch (error) { if (error.code !== 'ENOENT') throw error; }
 }
 
 function readCachedContext(parsed) {
@@ -202,10 +253,21 @@ async function main() {
     return;
   }
 
+  const backoff = readBackoff(parsed);
+  if (backoff) {
+    writeError(`Figma API rate limit is active. No request was made; retry after ${new Date(backoff.retryAt).toISOString()}.`);
+    return;
+  }
+
   let file;
   try {
     file = await requestJson(`https://api.figma.com/v1/files/${parsed.fileKey}`, token);
   } catch (error) {
+    if (error.isFigmaRateLimit) {
+      writeBackoff(parsed, error);
+      writeError(`Figma API rate limit is active. ${error.message}`);
+      return;
+    }
     writeError(`Could not read the Figma file: ${error.message}`);
     process.exitCode = 1;
     return;
@@ -238,6 +300,7 @@ async function main() {
   };
 
   writeContext(context, parsed);
+  clearBackoff(parsed);
 
   try {
     const imageResponse = await requestJson(

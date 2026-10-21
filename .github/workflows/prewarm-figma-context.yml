@@ -1,0 +1,52 @@
+name: Prewarm Figma context
+
+on:
+  workflow_dispatch:
+    inputs:
+      figma_url:
+        description: 'Figma design/file URL to cache for later intake runs'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  prewarm:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: figma-api-context
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.12.0'
+
+      # The cache contains only Figma metadata and optional rendered PNGs;
+      # neither the Figma token nor Jira data is written there.
+      - name: Restore Figma context cache
+        uses: actions/cache@v4
+        with:
+          path: .dmtools/cache/figma
+          key: figma-context-v1-${{ runner.os }}-${{ hashFiles('.dmtools/agents/scripts/fetch-figma-context.js') }}-${{ github.run_id }}
+          restore-keys: |
+            figma-context-v1-${{ runner.os }}-${{ hashFiles('.dmtools/agents/scripts/fetch-figma-context.js') }}-
+
+      - name: Fetch and cache Figma context
+        env:
+          FIGMA_TOKEN: ${{ secrets.FIGMA_TOKEN }}
+          FIGMA_SOURCE_URL: ${{ inputs.figma_url }}
+        run: |
+          input_dir="${RUNNER_TEMP}/figma-prewarm"
+          mkdir -p "${input_dir}"
+          node .dmtools/agents/scripts/fetch-figma-context.js "${input_dir}"
+          if [ -f "${input_dir}/figma_context_error.md" ]; then
+            cat "${input_dir}/figma_context_error.md" >&2
+            exit 1
+          fi
+          test -f "${input_dir}/figma_context.json"
+          echo "Figma context cached successfully."

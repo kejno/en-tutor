@@ -93,7 +93,10 @@ jobs:
     # (job.concurrency and job.if cannot read job-level `env:`, so there is
     # no single place to define it once).
     concurrency:
-      group: ${{ startsWith(inputs.concurrency_key, 'test-pr-') && format('ai-teammate-agent-{0}', inputs.concurrency_key) || startsWith((inputs.provider || vars.AI_AGENT_PROVIDER || 'claude-code'), 'codex') && format('ai-teammate-agent-{0}-auth', (inputs.provider || vars.AI_AGENT_PROVIDER || 'codex') == 'codex-2' && 'codex-2' || 'codex-1') || format('ai-teammate-agent-{0}', inputs.concurrency_key || inputs.config_file) }}
+      # All intake runs can request the same Figma API token. Serialize them
+      # across Codex accounts too, otherwise parallel intake jobs exhaust the
+      # shared Figma quota before the context cache can be populated.
+      group: ${{ inputs.config_file == 'agents/intake.json' && 'figma-api-context' || startsWith(inputs.concurrency_key, 'test-pr-') && format('ai-teammate-agent-{0}', inputs.concurrency_key) || startsWith((inputs.provider || vars.AI_AGENT_PROVIDER || 'claude-code'), 'codex') && format('ai-teammate-agent-{0}-auth', (inputs.provider || vars.AI_AGENT_PROVIDER || 'codex') == 'codex-2' && 'codex-2' || 'codex-1') || format('ai-teammate-agent-{0}', inputs.concurrency_key || inputs.config_file) }}
       cancel-in-progress: false
 
     steps:

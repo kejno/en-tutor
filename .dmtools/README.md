@@ -23,3 +23,15 @@ unintended processing. SM injects the actual inputJql into every dispatched job.
 
 The default agent is Claude Code; provider slot limit is one job. Alternate provider
 implementations are present but must be configured explicitly before use.
+
+## Figma context and rate limits
+
+Intake caches token-free Figma node maps and reference images for 24 hours. All
+intake runs share one Figma API concurrency lock. On HTTP 429 the fetcher saves
+the retry time from Figma and makes no further request before that time; a
+`figma_required` Epic remains `Blocked` with the retry time in its diagnostic.
+
+To fill or refresh the cache before running an intake, use GitHub Actions →
+**Prewarm Figma context** → **Run workflow**, and provide the Figma design URL.
+This workflow reads only `FIGMA_TOKEN`, writes no Jira tickets, and shares the
+same lock with intake.
