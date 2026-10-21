@@ -12,7 +12,7 @@ test('BNP-574: visitor can open FAQ, reach final CTA, and receive local email co
   const email = page.locator('#cta-email');
   await email.scrollIntoViewIfNeeded();
   await email.fill('learner@example.com');
-  await page.getByRole('button', { name: 'Получить 7 дней бесплатно' }).click();
+  await page.getByRole('button', { name: 'Claim 7 Days Free' }).click();
 
   await expect(page.locator('.final-cta')).toBeInViewport();
   await expect(page.locator('.final-cta')).toContainText('Данные не отправляются на сервер');

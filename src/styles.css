@@ -8,3 +8,20 @@
 @media(max-width:767px){.section{padding-left:16px;padding-right:16px}}
 @media(max-width:480px){.section{padding-left:16px;padding-right:16px}.topic-tag{font-size:10px}.feature-card h3{font-size:15px}}
 @media(max-width:800px){.site-header>nav{display:none}.mobile-navigation{display:block;position:relative}.mobile-navigation summary{cursor:pointer;list-style:none;font-size:20px}.mobile-navigation summary::-webkit-details-marker{display:none}.site-header .mobile-navigation-links{display:flex;position:absolute;right:0;top:28px;z-index:4;width:220px;padding:10px 16px;background:#fff;border:1px solid #eee;box-shadow:0 8px 20px #0001}.mobile-navigation-links a{padding:10px 0}.header-actions>a:first-child{display:none}}
+.final-cta{background:#fafafa;border:0;box-shadow:none;margin:0;max-width:none;padding:64px;min-height:483px;font-family:Arial,sans-serif}
+.final-cta-card{background:#fff;border:1px solid #e8e8e8;border-top:4px solid #1677ff;border-radius:6px;min-height:355px;padding:44px 24px 48px;max-width:1152px;margin:auto;box-shadow:0 2px 2px #00000003}
+.final-cta .section-heading{max-width:650px;margin:0 auto}
+.final-cta .eyebrow{display:inline-block;background:#e6f4ff;border:1px solid #91caff;border-radius:4px;color:#1677ff;font-size:12px;line-height:22px;font-weight:400;letter-spacing:0;text-transform:none;margin:0 0 16px;padding:0 10px}
+.final-cta h2{font-size:30px;line-height:35px;letter-spacing:-1px;margin:0 0 16px;color:#262626}
+.final-cta .section-heading>p:not(.eyebrow):not(.trial-details){color:#595959;font-size:14px;line-height:20px;margin:0 auto;max-width:520px}
+.final-cta .email-form{gap:8px;margin:32px auto 0;max-width:600px}
+.final-cta .email-form input{width:300px;min-width:0;height:34px;padding:4px 12px;border-radius:6px;font-size:12px;border-color:#d9d9d9}
+.final-cta .email-form button{height:34px;padding:4px 20px;border-radius:6px;background:#1677ff;font-size:12px;font-weight:400}
+.final-cta .email-form button:hover{background:#4096ff}
+.final-cta .email-form input:hover{border-color:#4096ff}
+.final-cta .email-form input[aria-invalid=true]{border-color:#ff4d4f}
+.final-cta .section-heading>.trial-details{font-size:11px;color:#8c8c8c;line-height:16px;margin:12px 0 0}
+@media(max-width:600px){.final-cta{padding:32px 16px}.final-cta-card{padding:32px 16px}.final-cta .email-form input{width:100%}}
+.final-cta .eyebrow{margin-bottom:12px}
+.final-cta .email-form input,.final-cta .email-form button{font-family:Arial,sans-serif}
+.final-cta .email-form input::placeholder{color:#8c8c8c}
