@@ -34,7 +34,7 @@ flowchart TD
         R2["Do not invent tracker keys"]
         R3["Check existing_stories.json to avoid duplicates"]
         R4["Summaries: concise, actionable, imperative"]
-        R5["Stories: 1-2 sprints worth, split if needed"]
+        R5["Stories are vertical, independently verifiable slices: one observable user outcome end-to-end, including necessary UI/API/data/test coverage. storyPoints is required: integer 1–5; split larger work by workflow step, role or bounded scenario."]
         R6["NO code, only analysis & structured content"]
         R7["Stories MUST be Testable: if autotest/integration coverage isn't realistic, don't create a separate story OR explicitly state 'no integration testing required — must be skipped, no test cases required, prerequisite story' (unit tests still required)"]
         R8["For existing/already-implemented features: verify they work correctly end-to-end AND are fully test-covered — code presence alone is not completion; gaps become their own Bug/Story"]
@@ -43,6 +43,7 @@ flowchart TD
         R11["Before writing any description .md file: replace every generic placeholder tag with the tracker-specific markup from the transform table for this run's tracker (e.g. `agents/instructions/tracker/jira_markup_transform.md` for Jira). Never write literal placeholder tags or raw Markdown headings/bullets straight into a tracker description — same rule as `story_questions`"]
         R12["existing_epics.json / existing_stories.json are freshly fetched from the live tracker THIS run and are the SOLE authoritative record of which tickets currently exist. Never treat a key mentioned only in comments.md / a prior run's summary / memory as still existing if it's absent from these freshly fetched files — it may have been deleted. If they seem inconsistent with a prior comment, the fresh files are correct; do not rationalize the mismatch as an 'environment quirk' and fall back to stale text. Confirm every parent/blockedBy/integrates key against these files before use"]
         R13["When figma_context.json exists, use it as the authoritative node map and add exact mappings to visual Stories. Figma is optional unless the Epic has label figma_required: then every Story MUST contain a valid mapping and figma_context_error.md is a blocker. Without the label, continue normal intake and never guess node IDs."]
+        R14["Use blockedBy only for a real start/verification blocker; it creates a native Blocks link and puts the Story in Blocked. Use integrates only for parallel work with an explicit merge/contract point; it creates a native Relates link. References must be unique, never self-referential or shared between both arrays, and must be a planned tempId or a key verified in the fresh tracker files."]
     end
 
     INPUTS --> TASK

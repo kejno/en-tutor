@@ -40,4 +40,42 @@ assert.throws(
     /Invalid figma mapping/
 );
 
+const verticalPlan = [
+    { type: 'Story', tempId: 'story-ui', summary: 'Save a lesson draft', storyPoints: 3 },
+    {
+        type: 'Story',
+        tempId: 'story-publish',
+        summary: 'Publish a lesson draft',
+        storyPoints: 5,
+        blockedBy: ['story-ui'],
+        integrates: ['ET-42']
+    }
+];
+assert.doesNotThrow(() => intake.validateVerticalSlices(verticalPlan));
+assert.doesNotThrow(() => intake.validateVerticalSlices([
+    { type: 'Story', summary: 'Use an existing dependency', storyPoints: 1, blockedBy: ['ET-42'] }
+]));
+assert.throws(
+    () => intake.validateVerticalSlices([{ type: 'Story', summary: 'Too large', storyPoints: 6 }]),
+    /1 to 5/
+);
+assert.throws(
+    () => intake.validateVerticalSlices([{ type: 'Story', summary: 'No estimate' }]),
+    /storyPoints/
+);
+assert.throws(
+    () => intake.validateVerticalSlices([
+        { type: 'Story', tempId: 'self', summary: 'Self blocker', storyPoints: 1, blockedBy: ['self'] }
+    ]),
+    /cannot depend/
+);
+assert.throws(
+    () => intake.validateVerticalSlices([
+        { type: 'Story', tempId: 'one', summary: 'Duplicate dependency', storyPoints: 1, blockedBy: ['ET-42'], integrates: ['ET-42'] }
+    ]),
+    /Duplicate or conflicting/
+);
+assert.strictEqual(intake.isJiraIssueKey('ET-42'), true);
+assert.strictEqual(intake.isJiraIssueKey('temp-42'), false);
+
 console.log('Intake Figma mapping checks passed');

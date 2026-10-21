@@ -76,6 +76,71 @@ function validateIntakeStructure(entries, ticketKey, params) {
     return entries;
 }
 
+function isJiraIssueKey(value) {
+    return typeof value === 'string' && /^[A-Z][A-Z0-9]+-\d+$/.test(value);
+}
+
+/**
+ * Keep the implementation queue deliverable: every Story is a small,
+ * independently verifiable vertical slice. The semantic part of "vertical"
+ * is guided by the intake instructions; these checks prevent the measurable
+ * plan regressions from reaching Jira.
+ */
+function validateVerticalSlices(entries) {
+    var tempIds = {};
+    entries.forEach(function(entry, index) {
+        if (!entry || typeof entry !== 'object') {
+            throw new Error('Invalid intake entry at index ' + index);
+        }
+        if (entry.tempId) {
+            if (typeof entry.tempId !== 'string' || tempIds[entry.tempId]) {
+                throw new Error('Each tempId must be a unique non-empty string; invalid entry: ' +
+                    (entry.summary || ('#' + index)));
+            }
+            tempIds[entry.tempId] = true;
+        }
+    });
+
+    entries.forEach(function(entry, index) {
+        if (entry.type !== ISSUE_TYPES.STORY) return;
+
+        var points = Number(entry.storyPoints);
+        if (!Number.isInteger(points) || points < 1 || points > 5) {
+            throw new Error('Story must have an integer storyPoints value from 1 to 5 (vertical slice): ' +
+                (entry.summary || ('#' + index)));
+        }
+
+        var blockedBy = entry.blockedBy || [];
+        var integrates = entry.integrates || [];
+        if (!Array.isArray(blockedBy) || !Array.isArray(integrates)) {
+            throw new Error('blockedBy and integrates must be arrays for Story: ' +
+                (entry.summary || ('#' + index)));
+        }
+
+        var seen = {};
+        blockedBy.concat(integrates).forEach(function(ref) {
+            if (typeof ref !== 'string' || !ref.trim()) {
+                throw new Error('Dependency reference must be a non-empty tempId or Jira key for Story: ' +
+                    (entry.summary || ('#' + index)));
+            }
+            if (!tempIds[ref] && !isJiraIssueKey(ref)) {
+                throw new Error('Dependency reference must be a planned tempId or Jira key for Story: ' +
+                    (entry.summary || ('#' + index)) + ' (' + ref + ')');
+            }
+            if (entry.tempId && ref === entry.tempId) {
+                throw new Error('Story cannot depend on or integrate with itself: ' +
+                    (entry.summary || ('#' + index)));
+            }
+            if (seen[ref]) {
+                throw new Error('Duplicate or conflicting dependency reference "' + ref + '" for Story: ' +
+                    (entry.summary || ('#' + index)));
+            }
+            seen[ref] = true;
+        });
+    });
+    return entries;
+}
+
 /**
  * Read outputs/comment.md, with fallback text
  * @returns {string} Comment text
@@ -463,6 +528,7 @@ function action(params) {
 
         // 1. Read stories.json
         var stories = validateIntakeStructure(readStoriesJson(ticketKey), ticketKey, params);
+        validateVerticalSlices(stories);
         if (sourceRequiresFigmaMappings(ticketKey, params) && stories.length === 0) {
             console.warn('No stories planned for figma_required Epic ' + ticketKey + '; blocking intake');
             return blockMissingFigmaContext(ticketKey, params, wipLabel);
@@ -580,7 +646,9 @@ function action(params) {
 
         // 4. Dependency and integration links
         function resolveKey(ref) {
-            return keyMap[ref] || null;
+            // A ref may point to a ticket created in this intake (tempId) or
+            // to a verified, already-existing Jira ticket from the input.
+            return keyMap[ref] || (isJiraIssueKey(ref) ? ref : null);
         }
 
         // blockedBy: create Blocks links + move blocked story to Blocked status
@@ -742,6 +810,8 @@ if (typeof module !== 'undefined' && module.exports) {
         appendFigmaReference: appendFigmaReference,
         validateFigmaMapping: validateFigmaMapping,
         sourceRequiresFigmaMappings: sourceRequiresFigmaMappings,
-        prepareFigmaMappings: prepareFigmaMappings
+        prepareFigmaMappings: prepareFigmaMappings,
+        validateVerticalSlices: validateVerticalSlices,
+        isJiraIssueKey: isJiraIssueKey
     };
 }
