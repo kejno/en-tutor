@@ -23,10 +23,10 @@ function action(params) {
     try {
         console.log('[figma] Running fetch-figma-context.sh');
         cli_execute_command({
-            // ai-teammate.yml runs dmtools from .dmtools, so this path is
-            // relative to that working directory. Keep the command direct:
-            // DMTools' CLI executor does not reliably support nested bash -c.
-            command: 'bash agents/scripts/fetch-figma-context.sh ' + folder
+              // cli_execute_command runs from the repository root. Keep the
+              // command direct: its executor does not reliably support a
+              // nested bash -c wrapper.
+              command: 'bash .dmtools/agents/scripts/fetch-figma-context.sh ' + folder
         });
         console.log('[figma] fetch-figma-context.sh completed');
     } catch (error) {
