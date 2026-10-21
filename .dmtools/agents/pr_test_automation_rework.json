@@ -23,7 +23,6 @@
     },
     "customParams": {
       "removeLabel": "sm_test_rework_triggered",
-      "checkOpenPR": true,
       "feedbackLoop": {
         "qualityGates": {
           "enabled": true,
