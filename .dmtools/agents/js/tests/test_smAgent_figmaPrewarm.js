@@ -35,7 +35,7 @@ const context = {
   jira_search_by_jql: () => [{ key: 'ET-45', fields: { labels: [] } }],
   jira_get_ticket: () => ({
     key: 'ET-45',
-    fields: { description: 'Implement https://www.figma.com/design/abc123/English-Tutor?node-id=2-95' }
+  fields: { description: 'Implement https://www.figma.com/design/abc123/English-Tutor?node-id=2-95|https://www.figma.com/design/abc123/English-Tutor?node-id=2-95' }
   }),
   jira_add_label: () => {},
   jira_remove_label: () => {}

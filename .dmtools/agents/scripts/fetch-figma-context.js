@@ -38,7 +38,7 @@ function sleep(ms) {
 }
 
 function findFigmaUrl(text) {
-  const match = text.match(/https?:\/\/www\.figma\.com\/(?:design|file)\/[^\s)\]}>"\\]+/i);
+  const match = text.match(/https?:\/\/www\.figma\.com\/(?:design|file)\/[^\s|)\]}>"\\]+/i);
   return match ? match[0].replace(/\\&/g, '&') : null;
 }
 

@@ -570,7 +570,7 @@ function findFigmaUrlForTicket(ticketKey) {
         var ticket = typeof raw === 'string' ? JSON.parse(raw) : raw;
         // JSON.stringify also covers Jira's ADF description representation.
         var text = JSON.stringify(ticket || {});
-        var match = /https?:\/\/www\.figma\.com\/(?:design|file)\/[^\s)\]}>"]+/i.exec(text);
+        var match = /https?:\/\/www\.figma\.com\/(?:design|file)\/[^\s|)\]}>"]+/i.exec(text);
         return match ? match[0].replace(/\\&/g, '&') : '';
     } catch (error) {
         console.warn('  ⚠️  Could not read Figma URL for ' + ticketKey + ': ' + (error.message || error));
