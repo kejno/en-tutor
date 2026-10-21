@@ -1,82 +1,79 @@
+import coachAvatar from './assets/coach-avatar.png';
+
 export type ConversationMessage = {
-  speaker: 'Emma' | 'FluentAI';
+  speaker: 'AI' | 'ME';
   text: string;
-  status: string;
-  tone: 'blue' | 'green' | 'neutral';
+  tone: 'neutral' | 'blue';
 };
 
 export const assessmentDemo = {
   conversation: [
-    {
-      speaker: 'Emma',
-      text: 'I’d like to improve my speaking skills, especially for meetings.',
-      status: 'Natural expression',
-      tone: 'neutral',
-    },
-    {
-      speaker: 'FluentAI',
-      text: 'You’re making strong progress. Let’s practice a confident response together.',
-      status: 'Excellent flow',
-      tone: 'blue',
-    },
-    {
-      speaker: 'Emma',
-      text: 'That sounds helpful — I’m ready to try.',
-      status: 'Clear and confident',
-      tone: 'green',
-    },
+    { speaker: 'AI', text: '“That migration strategy makes total sense. Could you elaborate on how your team addressed the latency spike during the initial deployment phase?”', tone: 'neutral' },
+    { speaker: 'ME', text: '“Honestly, we make mistakes yesterday when calculating database failovers, but caching salvaged the response window.”', tone: 'blue' },
   ] satisfies ConversationMessage[],
   score: 94,
   metrics: [
-    { label: 'Pronunciation Clarity', value: 95 },
-    { label: 'Conversational Flow', value: 88 },
+    { label: 'Phonetic Clarity', value: 92 },
+    { label: 'Conversational Flow (138 WPM)', value: 88 },
     { label: 'Lexical Sophistication', value: 80 },
   ],
-  vocabulary: 72,
 };
 
-function element<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  return node;
-}
-
 export function renderAssessmentCard(): HTMLElement {
-  const card = element('article', 'assessment-card');
+  const card = document.createElement('article');
+  card.className = 'assessment-card';
   card.dataset.testid = 'assessment-card';
-
-  const conversation = element('section', 'conversation-panel');
-  const conversationHeading = element('div', 'panel-heading');
-  conversationHeading.innerHTML = '<div><span class="eyebrow">Live conversation</span><h3>Emma · AI Native Coach</h3></div><span class="live-pill">Live demo</span>';
-  conversation.append(conversationHeading);
-
-  const messages = element('div', 'conversation-messages');
+  card.setAttribute('aria-label', 'Демонстрация оценки речи Emma');
+  card.innerHTML = `
+    <header class="assessment-header">
+      <img class="coach-avatar" src="${coachAvatar}" alt="Emma" width="40" height="40" />
+      <div><div><strong>Emma • AI Native Coach</strong> <span class="live-pill">Live Voice</span></div>
+      <p>Scenario: Tech Lead Architecture Pitch &amp; Executive Q&amp;A</p></div>
+      <span class="demo-label">Статичная демонстрация</span>
+    </header>
+    <div class="assessment-panels">
+      <section class="conversation-panel" aria-label="Диалог">
+        <div class="conversation-messages"></div>
+        <aside class="grammar-correction" aria-label="Исправление грамматики">
+          <div><strong>🪄 Real-Time Grammar Alignment</strong><span>Polite Reformulation</span></div>
+          <p>Instead of <del>“we make mistakes yesterday”</del>, try <ins>“we made mistakes yesterday”</ins> or <ins>“we encountered an oversight”</ins>.</p>
+        </aside>
+        <div class="demo-input"><span aria-hidden="true">♩</span><input disabled aria-label="Демонстрационный ввод: запись и отправка недоступны" placeholder="Tap mic or speak your response aloud..." /><button disabled aria-label="Запись недоступна в демонстрации">◖ıı◗</button></div>
+      </section>
+      <section class="score-panel" aria-label="Оценка речи">
+        <div class="score-heading"><strong>Live Fluency Dial</strong><span>CEFR: C1 Native</span></div>
+        <div class="score-ring" data-testid="assessment-score"><strong>${assessmentDemo.score}%</strong><span>ACCURACY</span></div>
+        <div class="metrics"></div>
+        <p class="assessment-insight">⊙ Hesitation pauses decreased by 42% since session 3.</p>
+      </section>
+    </div>`;
+  const messages = card.querySelector('.conversation-messages')!;
   assessmentDemo.conversation.forEach((message) => {
-    const row = element('div', `message-row message-${message.tone}`);
+    const row = document.createElement('div');
+    row.className = `message-row message-${message.tone}`;
     row.dataset.testid = 'conversation-message';
-    row.innerHTML = `<div class="message-avatar">${message.speaker === 'Emma' ? 'E' : '✦'}</div><div class="message-content"><div class="message-meta"><strong>${message.speaker}</strong><span>${message.status}</span></div><p>${message.text}</p></div>`;
+    const avatar = document.createElement('span');
+    avatar.className = 'message-avatar';
+    avatar.textContent = message.speaker;
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    const text = document.createElement('p');
+    text.textContent = message.text;
+    content.append(text);
+    if (message.speaker === 'AI') {
+      const status = document.createElement('small');
+      status.textContent = '◀ 0.9x Pitch • Natural Pace';
+      content.append(status);
+    }
+    row.append(avatar, content);
     messages.append(row);
   });
-  conversation.append(messages);
-
-  const scorePanel = element('section', 'score-panel');
-  scorePanel.innerHTML = '<div class="panel-heading"><div><span class="eyebrow">Speech assessment</span><h3>Your fluency snapshot</h3></div><span class="success-dot">✓</span></div>';
-  const score = element('div', 'score-ring');
-  score.dataset.testid = 'assessment-score';
-  score.innerHTML = `<strong>${assessmentDemo.score}%</strong><span>Overall score</span>`;
-  scorePanel.append(score);
-
-  const metrics = element('div', 'metrics');
+  const metrics = card.querySelector('.metrics')!;
   assessmentDemo.metrics.forEach((metric) => {
-    const metricRow = element('div', 'metric');
-    metricRow.innerHTML = `<div class="metric-label"><span>${metric.label}</span><strong>${metric.value}%</strong></div><div class="progress-track"><span style="width: ${metric.value}%"></span></div>`;
-    metrics.append(metricRow);
+    const row = document.createElement('div');
+    row.className = 'metric';
+    row.innerHTML = `<div class="metric-label"><span>${metric.label}</span><strong>${metric.value}%</strong></div><div class="progress-track" role="progressbar" aria-label="${metric.label}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${metric.value}"><span style="width:${metric.value}%"></span></div>`;
+    metrics.append(row);
   });
-  const vocabulary = element('div', 'vocabulary');
-  vocabulary.innerHTML = `<div class="metric-label"><span>Vocabulary Growth</span><strong>${assessmentDemo.vocabulary}%</strong></div><div class="progress-track orange"><span style="width: ${assessmentDemo.vocabulary}%"></span></div><small>Personalized words discovered in conversation</small>`;
-  metrics.append(vocabulary);
-  scorePanel.append(metrics);
-
-  card.append(conversation, scorePanel);
   return card;
 }
