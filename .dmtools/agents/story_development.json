@@ -1,5 +1,6 @@
 {
   "name": "Teammate",
+  "model": "gpt-5.6-terra",
   "params": {
     "metadata": {
       "contextId": "story_development",
