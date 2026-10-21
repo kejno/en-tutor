@@ -14,23 +14,27 @@ function safeInputFolder(folder) {
 
 function action(params) {
     var folder = params && params.inputFolderPath;
+    console.log('[figma] pre-action received inputFolderPath=' + (folder || '<missing>'));
     if (!safeInputFolder(folder)) {
         console.warn('Skipping Figma context fetch: input folder is unavailable or unsafe');
         return;
     }
 
     try {
+        console.log('[figma] Running fetch-figma-context.sh');
         cli_execute_command({
             // ai-teammate.yml runs dmtools from .dmtools, so this path is
             // relative to that working directory. Keep the command direct:
             // DMTools' CLI executor does not reliably support nested bash -c.
             command: 'bash agents/scripts/fetch-figma-context.sh ' + folder
         });
+        console.log('[figma] fetch-figma-context.sh completed');
     } catch (error) {
         // The script itself writes figma_context_error.md, which tells intake to
         // stop rather than inventing node mappings. Do not make a missing Figma
         // token fatal for non-design Epics.
         console.warn('Figma context fetch failed:', error);
+        if (error && error.stack) console.warn(error.stack);
     }
 }
 
