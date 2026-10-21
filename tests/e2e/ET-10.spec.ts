@@ -21,6 +21,8 @@ test('changes the displayed active topic and demonstration card together', async
   await expect(topics.nth(1)).toHaveAttribute('aria-pressed', 'true');
   await expect(cardTitle).toContainText('🎓 IELTS & Academic Prep');
   await expect(cardTitle).toContainText('Build Confident IELTS Answers and Academic Arguments');
+  await expect(page.locator('#paths .roleplay-panel')).toContainText('Structured Response Framework');
+  await expect(page.locator('#paths .roleplay-panel')).not.toContainText('C-Suite Phrasing Vault');
 });
 
 test('uses 16px horizontal section padding at the mobile breakpoint boundary', async ({ page }) => {
