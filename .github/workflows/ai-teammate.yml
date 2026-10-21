@@ -276,6 +276,24 @@ jobs:
               > outputs/agent_cli_intentionally_skipped.json
           fi
 
+      # Intake is intentionally a pre-CLI workflow: agents/intake.json has
+      # skipAIProcessing=true and creates Jira Stories in postJSAction. Keep
+      # the generated Figma error/context files visible when its pre-action
+      # fails, otherwise dmtools only reports the generic preCliJSAction error.
+      - name: Show intake pre-CLI diagnostics
+        if: ${{ always() && inputs.config_file == 'agents/intake.json' }}
+        working-directory: .dmtools
+        run: |
+          found=0
+          while IFS= read -r -d '' file; do
+            found=1
+            echo "--- ${file} ---"
+            sed -n '1,160p' "${file}"
+          done < <(find .. -type f \( -name 'figma_context_error.md' -o -name 'figma_context.json' \) -print0)
+          if [ "${found}" -eq 0 ]; then
+            echo "No Figma context diagnostic files were produced."
+          fi
+
       # Codex's refresh token is single-use: the CLI rotates it in place during
       # the run, which invalidates the copy currently held in CODEX_AUTH_JSON.
       # Unless the rotated file is written back to that secret, the NEXT run
@@ -329,7 +347,7 @@ jobs:
       # explicitly if it shows a rate-limit/usage-limit signal, so a run that
       # accomplished nothing shows red instead of a misleadingly green one.
       - name: Validate Codex execution
-        if: ${{ always() && startsWith((inputs.provider || vars.AI_AGENT_PROVIDER || 'claude-code'), 'codex') }}
+        if: ${{ always() && inputs.config_file != 'agents/intake.json' && startsWith((inputs.provider || vars.AI_AGENT_PROVIDER || 'claude-code'), 'codex') }}
         working-directory: .dmtools
         run: |
           if [ -f outputs/agent_cli_intentionally_skipped.json ]; then
@@ -349,7 +367,7 @@ jobs:
           echo "✅ Latest Codex call completed successfully."
 
       - name: Validate Claude Code execution
-        if: ${{ always() && !startsWith((inputs.provider || vars.AI_AGENT_PROVIDER || 'claude-code'), 'codex') }}
+        if: ${{ always() && inputs.config_file != 'agents/intake.json' && !startsWith((inputs.provider || vars.AI_AGENT_PROVIDER || 'claude-code'), 'codex') }}
         working-directory: .dmtools
         run: |
           if [ -f outputs/agent_cli_intentionally_skipped.json ]; then
