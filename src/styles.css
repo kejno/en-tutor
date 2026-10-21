@@ -8,3 +8,37 @@
 @media(max-width:767px){.section{padding-left:16px;padding-right:16px}}
 @media(max-width:480px){.section{padding-left:16px;padding-right:16px}.topic-tag{font-size:10px}.feature-card h3{font-size:15px}}
 @media(max-width:800px){.site-header>nav{display:none}.mobile-navigation{display:block;position:relative}.mobile-navigation summary{cursor:pointer;list-style:none;font-size:20px}.mobile-navigation summary::-webkit-details-marker{display:none}.site-header .mobile-navigation-links{display:flex;position:absolute;right:0;top:28px;z-index:4;width:220px;padding:10px 16px;background:#fff;border:1px solid #eee;box-shadow:0 8px 20px #0001}.mobile-navigation-links a{padding:10px 0}.header-actions>a:first-child{display:none}}
+
+/* Personalized learning paths share one compact desktop card. */
+#paths{font-family:Arial,sans-serif;padding:64px max(32px,calc((100% - 1152px)/2));}
+#paths .paths-heading{margin-bottom:36px;gap:40px;}
+#paths .eyebrow{display:inline-block;background:#e6f4ff;border:1px solid #91caff;border-radius:4px;padding:3px 10px;font-size:12px;font-weight:400;letter-spacing:0;text-transform:none;margin:0;line-height:18px;}
+#paths h2{font-size:30px;letter-spacing:-1px;line-height:36px;margin:8px 0 0;}
+#paths .paths-heading>p{font-size:14px;line-height:20px;max-width:448px;margin:0;}
+#paths .pill-row{background:#eee;border-radius:6px;display:flex;width:fit-content;max-width:100%;gap:4px;padding:4px;margin:0 0 24px;}
+#paths .topic-tag{background:transparent;border:0;border-radius:4px;box-shadow:none;font-size:12px;line-height:20px;padding:4px 12px;color:#888;white-space:nowrap;}
+#paths .topic-tag.active{background:#fff;color:#333;box-shadow:0 1px 4px #00000008;}
+#paths .topic-tag:focus-visible{outline:2px solid #1677ff;outline-offset:2px;}
+#paths .split-card{max-width:1152px;margin:auto;padding:32px;gap:32px;grid-template-columns:1.4fr 1fr;border-color:#eee;border-radius:8px;box-shadow:0 1px 3px #00000003;}
+#paths .recommendation{display:inline-flex;align-items:center;gap:5px;background:#e6f4ff;border:1px solid #91caff;border-radius:3px;color:#1677ff;font-size:12px;line-height:20px;padding:0 8px;}
+#paths .split-card h3{font-size:20px;line-height:26px;margin:18px 0;}
+#paths .roleplay-panel>p{font-size:14px;line-height:20px;margin:0 0 16px;}
+#paths .roleplay-scenario{border:0;border-left:2px solid #1677ff;border-radius:0 4px 4px 0;background:#fafafa;padding:14px;margin:0 0 24px;line-height:16px;}
+#paths .roleplay-scenario small{font-size:11px;color:#999;}
+#paths .roleplay-scenario p{font-size:11px;line-height:16px;color:#333;margin:4px 0 0;}
+#paths ul{font-size:12px;line-height:20px;gap:8px 16px;margin:0;}
+#paths li{display:flex;align-items:center;gap:8px;}
+#paths li .anticon{color:#1677ff;}
+#paths .progress-panel{background:#fafafa;border:1px solid #eee;border-radius:6px;padding:20px;align-self:stretch;}
+#paths .progress-header{font-size:12px;line-height:18px;border-bottom:1px solid #eee;padding-bottom:11px;margin-bottom:12px;}
+#paths .progress-header small{color:#1677ff;font-size:12px;margin:0;}
+#paths .vocabulary-item{background:white;border:1px solid #eee;border-radius:5px;padding:10px;margin-bottom:8px;min-height:54px;gap:8px;font-size:12px;line-height:16px;}
+#paths .vocabulary-item small{font-size:11px;line-height:14px;margin:2px 0 0;}
+#paths .vocabulary-item em{border:1px solid #b7eb8f;background:#f6ffed;color:#52c41a;border-radius:3px;font-size:11px;line-height:16px;padding:2px 8px;white-space:nowrap;}
+#paths .vocabulary-item:nth-child(3) em{border-color:#ffe58f;background:#fffbe6;color:#faad14;}
+#paths .vocabulary-item:nth-child(4) em{border-color:#91caff;background:#e6f4ff;color:#1677ff;}
+#paths .readiness{font-size:12px;line-height:18px;margin-top:22px;}
+#paths .readiness strong{font-size:12px;color:#1677ff;font-weight:400;}
+#paths .ant-progress{display:block;line-height:1;margin:2px 0 0;}
+@media(min-width:1000px){#paths{height:673px;}#paths .split-card{min-height:380px;}}
+@media(max-width:800px){#paths .pill-row{flex-wrap:wrap;}#paths .split-card{grid-template-columns:1fr;}#paths h2{font-size:30px;}}
