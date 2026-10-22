@@ -48,7 +48,7 @@ export function renderAssessmentCard(): HTMLElement {
   const conversation = element('section', 'conversation-panel');
   const conversationHeading = element('div', 'panel-heading');
   conversationHeading.innerHTML = '<div><span class="eyebrow">Live conversation</span><h3>Emma · AI Native Coach</h3></div><span class="live-pill">Live demo</span>';
-  conversation.append(conversationHeading);
+  card.append(conversationHeading);
 
   const messages = element('div', 'conversation-messages');
   assessmentDemo.conversation.forEach((message) => {
