@@ -1,4 +1,5 @@
-import { FormEvent, useState } from 'react';
+import { type FormEvent, useState } from 'react';
+import { Button, Input } from 'antd';
 import { isValidEmail } from '../lib/emailValidation';
 
 export function EmailCapture({ compact = false }: { compact?: boolean }) {
@@ -19,21 +20,25 @@ export function EmailCapture({ compact = false }: { compact?: boolean }) {
 
   return (
     <form className={compact ? 'email-form compact' : 'email-form'} onSubmit={handleSubmit} noValidate>
-      <label className="sr-only" htmlFor={compact ? 'footer-email' : 'cta-email'}>Адрес электронной почты</label>
-      <input
+      <label className="sr-only" htmlFor={compact ? 'footer-email' : 'cta-email'}>{compact ? 'Адрес электронной почты' : 'Email address'}</label>
+      <Input
         id={compact ? 'footer-email' : 'cta-email'}
         aria-describedby={error ? `${compact ? 'footer' : 'cta'}-email-error` : undefined}
         aria-invalid={Boolean(error)}
-        onChange={(event) => setEmail(event.target.value)}
-        placeholder="Введите ваш email"
+        onChange={(event) => {
+          setEmail(event.target.value);
+          setError('');
+          setSubmitted(false);
+        }}
+        placeholder={compact ? 'Введите ваш email' : 'Enter your email address'}
         type="email"
         value={email}
       />
-      <button type="submit">{compact ? 'Join' : 'Получить 7 дней бесплатно'}</button>
+      <Button type="primary" htmlType="submit">{compact ? 'Join' : 'Claim 7 Days Free'}</Button>
       {error && <p className="form-error" id={`${compact ? 'footer' : 'cta'}-email-error`}>{error}</p>}
       {submitted && (
         <p className="form-success" role="status">
-          Заявка сохранена локально. Данные не отправляются на сервер, поскольку API пока не подключён.
+          Адрес проверен локально. Данные не отправляются на сервер; пробный период не активирован.
         </p>
       )}
     </form>
