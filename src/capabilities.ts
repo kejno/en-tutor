@@ -3,9 +3,11 @@ export type CapabilityCard = {
   title: string;
   description: string;
   sampleMessage?: string;
+  author?: string;
+  sound?: string;
+  memory?: string;
   indicator?: string;
   tags?: string[];
-  miniGraph?: string;
 };
 
 export type LearningMetric = {
@@ -15,10 +17,10 @@ export type LearningMetric = {
 };
 
 export const capabilityCards: CapabilityCard[] = [
-  { icon: '♡', title: 'Zero-Judgment Conversational Haven', description: 'No human tutor sighs when you pause or repeat yourself for the fifth time. Emma adjusts her patience level to infinite.', sampleMessage: '“I finally stopped feeling ashamed of my French accent.”' },
-  { icon: '∿', title: 'Phonetic Accent Tuner', description: 'Isolate difficult sound pairings with dynamic visual waveform overlays.', indicator: 'Match: 95%', miniGraph: 'M2 18 C10 18 10 4 18 4 S26 18 34 18 S42 4 50 4 S58 18 66 18' },
-  { icon: '↗', title: '1,200+ Roleplay Scenarios', description: 'Experience every nuance before it counts, from artisan coffee to VC pitches.', tags: ['Coffee Shop', 'VC Pitch', 'French Interview'] },
-  { icon: '▣', title: 'Adaptive Persistent Memory', description: 'Emma remembers your stumbling blocks and organically prompts them into tomorrow’s conversation.', indicator: 'Auto-synced' },
+  { icon: 'heart', title: 'Zero-Judgment Conversational Haven', description: 'No human tutor sighs when you pause or repeat yourself for the fifth time. Emma adjusts her patience level to infinite, encouraging you until the pronunciation clicks.', sampleMessage: '“I finally stopped feeling ashamed of my French accent. I speak 20 mins every morning before work.”', author: 'Claire D. • Paris, France' },
+  { icon: 'sound', title: 'Phonetic Accent Tuner', description: 'Isolate difficult sound pairings—such as the English /θ/ vs /s/—with dynamic visual waveform overlays.', sound: 'Sound: "Thorough"', indicator: 'Match: 95%' },
+  { icon: 'scenarios', title: '1,200+ Roleplay Scenarios', description: 'From ordering artisan coffee in London to pitching VC partners on Sand Hill Road. Experience every nuance before it counts.', tags: ['Coffee Shop', 'VC Seed Pitch', 'Emergency Room', '+ Custom Prompt'] },
+  { icon: 'memory', title: 'Adaptive Persistent Memory', description: 'Emma remembers your stumbling blocks from 3 days ago. If you struggled with "ubiquitous" or prepositions like "in charge of", she will organically prompt them into tomorrow\'s conversation.', memory: 'Active Memory Cache: 30 words reinforced this week', indicator: 'Auto-synced' },
 ];
 
 export const learningMetrics: LearningMetric[] = [

@@ -10,22 +10,22 @@ test('ET-44: прокрутка открывает для просмотра и 
   const expectedCards = [
     {
       title: 'Zero-Judgment Conversational Haven',
-      description: 'No human tutor sighs when you pause or repeat yourself for the fifth time. Emma adjusts her patience level to infinite.',
-      nestedText: '“I finally stopped feeling ashamed of my French accent.”',
+      description: 'No human tutor sighs when you pause or repeat yourself for the fifth time. Emma adjusts her patience level to infinite, encouraging you until the pronunciation clicks.',
+      nestedText: '“I finally stopped feeling ashamed of my French accent. I speak 20 mins every morning before work.”',
     },
     {
       title: 'Phonetic Accent Tuner',
-      description: 'Isolate difficult sound pairings with dynamic visual waveform overlays.',
+      description: 'Isolate difficult sound pairings—such as the English /θ/ vs /s/—with dynamic visual waveform overlays.',
       nestedText: 'Match: 95%',
     },
     {
       title: '1,200+ Roleplay Scenarios',
-      description: 'Experience every nuance before it counts, from artisan coffee to VC pitches.',
-      nestedText: ['Coffee Shop', 'VC Pitch', 'French Interview'],
+      description: 'From ordering artisan coffee in London to pitching VC partners on Sand Hill Road. Experience every nuance before it counts.',
+      nestedText: ['Coffee Shop', 'VC Seed Pitch', 'Emergency Room', '+ Custom Prompt'],
     },
     {
       title: 'Adaptive Persistent Memory',
-      description: 'Emma remembers your stumbling blocks and organically prompts them into tomorrow’s conversation.',
+      description: 'Emma remembers your stumbling blocks from 3 days ago. If you struggled with "ubiquitous" or prepositions like "in charge of", she will organically prompt them into tomorrow\'s conversation.',
       nestedText: 'Auto-synced',
     },
   ];

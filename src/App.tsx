@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, ConfigProvider, Progress, Tag } from 'antd';
+import claireAvatar from './assets/claire.jpeg';
+import heartIcon from './assets/capability-heart.svg';
+import soundIcon from './assets/capability-sound.svg';
+import scenariosIcon from './assets/capability-scenarios.svg';
+import memoryIcon from './assets/capability-memory.svg';
+import memorySyncIcon from './assets/memory-sync.svg';
+import accentReference from './assets/accent-reference.svg';
+import accentSample from './assets/accent-sample.svg';
 import { CheckOutlined, CloseOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { EmailCapture } from './components/EmailCapture';
 import { Faq } from './components/Faq';
@@ -12,6 +20,8 @@ import './styles.css';
 import marcoPortrait from './assets/testimonials/marco.png';
 import aikoPortrait from './assets/testimonials/aiko.png';
 import carlosPortrait from './assets/testimonials/carlos.png';
+
+const capabilityIcons: Record<string, string> = { heart: heartIcon, sound: soundIcon, scenarios: scenariosIcon, memory: memoryIcon };
 
 const plans = [
   { id: 'starter', name: 'Starter', price: 14, description: 'Perfect for casual learners building daily habits.', features: ['15 mins daily voice conversation', 'Standard grammar correction', '100+ basic roleplay scenarios', 'Phonetic accent waveforms'] },
@@ -152,7 +162,14 @@ function App() {
         <section className="logo-strip"><p>TRUSTED BY AMBITIOUS PROFESSIONALS &amp; GRADUATE STUDENTS FROM LEADING INSTITUTIONS WORLDWIDE</p><div><b>Google</b><b>Spotify</b><b>McKinsey</b><b>Stanford</b><b>Uber</b><b>Revolut</b></div></section>
         <section className="section" id="methodology"><div className="section-heading"><p className="eyebrow">Neuro-Linguistic Engine</p><h2>The 3-Step Rapid Fluency Method</h2><p>Built without intimidating multiple-choice drills. You speak out loud from minute one with progressive cognitive difficulty.</p></div><div className="three-col">{methodologySteps.map((step) => <article className="feature-card" key={step.number}><span className="number">{step.number}</span><h3>{step.title}</h3><p>{step.description}</p><small>{step.metricLabel} <strong>{step.metricValue}</strong></small></article>)}</div></section>
         <section className="section muted" id="paths"><div className="paths-heading"><div><p className="eyebrow">Targeted Tracks</p><h2>Tailored to What You Actually Say</h2></div><p>Don't waste time reciting arbitrary fruit names. Choose the exact conversational track you need for your career or life milestone.</p></div><div className="pill-row" role="group" aria-label="Learning topics">{learningTopics.map((topic) => <button type="button" className={`topic-tag ${selectedTopic === topic.id ? 'active' : ''}`} aria-pressed={selectedTopic === topic.id} data-testid="topic-tag" key={topic.id} onClick={() => setSelectedTopic(topic.id)}>{topic.label}</button>)}</div><div className="split-card"><div className="roleplay-panel"><small>{topicCard.recommendation}</small><h3>{topicCard.label}: {topicCard.title}</h3><p>{topicCard.description}</p><div className="roleplay-scenario"><small>ACTIVE ROLEPLAY SCENARIO</small><p>{topicCard.scenario}</p></div><ul>{topicCard.benefits.map((benefit) => <li key={benefit}>✓ {benefit}</li>)}</ul></div><div className="progress-panel"><div className="progress-header"><span>Target Vocabulary Focus</span><small>Module 4 of 12</small></div>{topicCard.vocabulary.map((item) => <div className="vocabulary-item" key={item.term}><span><b>{item.term}</b><small>{item.description}</small></span><em>{item.status}</em></div>)}<div className="readiness"><span>{topicCard.readinessLabel}</span><strong>{topicCard.readiness}%</strong></div><Progress percent={topicCard.readiness} showInfo={false} /></div></div></section>
-        <section className="section" aria-labelledby="capabilities-title" aria-label="Verbal mastery capabilities"><div className="section-heading"><p className="eyebrow">Engineered For Ease</p><h2 id="capabilities-title">Everything You Need for Verbal Mastery</h2><p>Built around speech science, eliminating the friction that keeps learners trapped in passive grammar study.</p></div><div className="four-grid">{capabilityCards.map((card) => <article key={card.title}><span className="icon" aria-hidden="true">{card.icon}</span><h3>{card.title}</h3><p>{card.description}</p>{card.sampleMessage && <blockquote>{card.sampleMessage}</blockquote>}{card.miniGraph && <div className="mini-graph" aria-label="Accent matching waveform"><svg viewBox="0 0 68 22" role="img" aria-hidden="true"><path d={card.miniGraph} /></svg></div>}{card.tags && <div className="capability-tags">{card.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}{card.indicator && <strong>{card.indicator}</strong>}</article>)}</div></section>
+        <section className="section capabilities" aria-labelledby="capabilities-title" aria-label="Verbal mastery capabilities"><div className="section-heading"><p className="eyebrow">Engineered For Ease</p><h2 id="capabilities-title">Everything You Need for Verbal Mastery</h2><p>Built around speech science, eliminating the friction that keeps learners trapped in passive grammar study.</p></div><div className="four-grid">{capabilityCards.map((card) => <article key={card.title} className={`capability-${card.icon}`}>
+          <span className="capability-icon" aria-hidden="true"><img src={capabilityIcons[card.icon]} alt="" /></span>
+          <h3>{card.title}</h3><p>{card.description.split(/(\/θ\/ vs \/s\/)/).map((part, index) => part === '/θ/ vs /s/' ? <span className="sound-pair" key={index}>{part}</span> : part)}</p>
+          {card.sampleMessage && <figure className="capability-demo testimonial-demo"><img src={claireAvatar} alt="Claire D." /><figcaption><blockquote>{card.sampleMessage}</blockquote><span>{card.author}</span></figcaption></figure>}
+          {card.sound && <figure className="capability-demo accent-demo" aria-label="Пример визуализации произношения"><figcaption><span>{card.sound}</span><span className="match">{card.indicator}</span></figcaption><div className="accent-waveform" aria-hidden="true"><img src={accentReference} alt="" /><img src={accentSample} alt="" /></div></figure>}
+          {card.tags && <div className="capability-tags">{card.tags.map((tag) => <Tag color={tag.startsWith('+') ? 'blue' : undefined} key={tag}>{tag}</Tag>)}</div>}
+          {card.memory && <div className="capability-demo memory-demo"><span><img src={memorySyncIcon} alt="" /> {card.memory}</span><Tag color="green">{card.indicator}</Tag></div>}
+        </article>)}</div></section>
         <section className="stats" aria-label="Learning metrics">{learningMetrics.map((metric) => <div key={metric.label}><span className="metric-label">{metric.label}</span><b>{metric.value}</b><p>{metric.description}</p></div>)}</section>
         <section className="section results" id="results" aria-labelledby="results-title">
           <div className="section-heading"><p className="eyebrow">Learner Proof</p><h2 id="results-title">Real Transformations, Real Careers</h2><p>Hear how ambitious professionals shifted from hesitating mid-sentence to commanding meetings.</p></div>
