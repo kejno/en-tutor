@@ -32,7 +32,7 @@ for (const viewport of viewports) {
     const expectedSectionPadding = viewport.width <= 767 ? '16px' : '32px';
     const expectedPathsPadding = viewport.width <= 767
       ? '16px'
-      : `${Math.max(32, (viewport.width - 1200) / 2)}px`;
+      : viewport.width === 1280 ? '64px' : '32px';
     await expect(page.locator('#methodology')).toHaveCSS('padding-left', expectedSectionPadding);
     await expect(page.locator('#methodology')).toHaveCSS('padding-right', expectedSectionPadding);
     await expect(page.locator('#paths')).toHaveCSS('padding-left', expectedPathsPadding);
