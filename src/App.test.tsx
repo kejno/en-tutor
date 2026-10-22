@@ -37,7 +37,7 @@ describe('FluentAI landing page navigation', () => {
 
     expect(topics[0]).toHaveAttribute('aria-pressed', 'false');
     expect(topics[1]).toHaveAttribute('aria-pressed', 'true');
-    const card = screen.getByText(/🎓 IELTS & Academic Prep: Build Confident IELTS Answers/).closest('.split-card');
+    const card = screen.getByText(/Build Confident IELTS Answers/).closest('.split-card');
 
     expect(card).toBeInTheDocument();
     expect(within(card as HTMLElement).getByText(/Structured Response Framework/)).toBeInTheDocument();
