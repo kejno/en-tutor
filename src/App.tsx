@@ -8,6 +8,7 @@ import memoryIcon from './assets/capability-memory.svg';
 import memorySyncIcon from './assets/memory-sync.svg';
 import accentReference from './assets/accent-reference.svg';
 import accentSample from './assets/accent-sample.svg';
+import { CheckOutlined, CloseOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { EmailCapture } from './components/EmailCapture';
 import { Faq } from './components/Faq';
 import { Footer } from './components/Footer';
@@ -16,16 +17,24 @@ import { capabilityCards, learningMetrics } from './capabilities';
 import { learningTopics, methodologySteps } from './methodology';
 import { getPriceView, type BillingPeriod } from './pricing';
 import './styles.css';
+import marcoPortrait from './assets/testimonials/marco.png';
+import aikoPortrait from './assets/testimonials/aiko.png';
+import carlosPortrait from './assets/testimonials/carlos.png';
 
 const capabilityIcons: Record<string, string> = { heart: heartIcon, sound: soundIcon, scenarios: scenariosIcon, memory: memoryIcon };
 
 const plans = [
-  { id: 'starter', name: 'Starter', price: 14, description: 'Perfect for casual learners building daily habits.', features: ['15 mins daily voice conversation', 'Standard grammar correction', '100+ basic roleplay scenarios'] },
-  { id: 'pro', name: 'Pro Fluency', price: 24, description: 'For professionals, expats, and exam candidates.', features: ['Unlimited voice conversation minutes', 'Phonetic Accent Tuner & Mouth Shapes', 'IELTS Speaking Examiner Simulator', 'Executive & Tech Business tracks'], featured: true },
-  { id: 'executive', name: 'Executive 1-on-1 AI+', price: 49, description: 'For founders, diplomats, and senior executives.', features: ['Everything in Pro Fluency', 'Monthly human linguist accent audit', 'Custom corporate scenarios uploaded'] },
+  { id: 'starter', name: 'Starter', price: 14, description: 'Perfect for casual learners building daily habits.', features: ['15 mins daily voice conversation', 'Standard grammar correction', '100+ basic roleplay scenarios', 'Phonetic accent waveforms'] },
+  { id: 'pro', name: 'Pro Fluency', price: 24, description: 'For professionals, expats, and exam candidates.', features: ['Unlimited voice conversation minutes', 'Phonetic Accent Tuner & Mouth Shapes', 'IELTS Speaking Examiner Simulator', 'Executive & Tech Business tracks', 'Ultra-low latency audio (<300ms)'], featured: true },
+  { id: 'executive', name: 'Executive 1-on-1 AI+', price: 49, description: 'For founders, diplomats, and senior executives.', features: ['Everything in Pro Fluency', 'Monthly human linguist accent audit', 'Custom corporate scenarios uploaded', 'VIP Priority Voice Infrastructure'] },
 ];
 
 const faqItems = [
+  {
+    id: 'comparison',
+    question: 'Is an AI tutor genuinely better than a human tutor?',
+    answer: 'Демо показывает, как FluentAI помогает практиковать английскую речь и получать обратную связь. Это демонстрация возможностей продукта, а не утверждение о превосходстве ИИ-репетитора над человеческим репетитором.',
+  },
   {
     id: 'trial',
     question: 'How does the 7-day free trial work?',
@@ -135,7 +144,7 @@ function AssessmentPreview() {
 }
 
 function App() {
-  const [billing, setBilling] = useState<BillingPeriod>('annual');
+  const [billing, setBilling] = useState<BillingPeriod>('monthly');
   const [activatedPlan, setActivatedPlan] = useState<string | null>(null);
   const [trialNotice, setTrialNotice] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState('business');
@@ -161,11 +170,53 @@ function App() {
           {card.tags && <div className="capability-tags">{card.tags.map((tag) => <Tag color={tag.startsWith('+') ? 'blue' : undefined} key={tag}>{tag}</Tag>)}</div>}
           {card.memory && <div className="capability-demo memory-demo"><span><img src={memorySyncIcon} alt="" /> {card.memory}</span><Tag color="green">{card.indicator}</Tag></div>}
         </article>)}</div></section>
-        <section className="stats" aria-label="Learning metrics">{learningMetrics.map((metric) => <div key={metric.label}><b>{metric.value}</b><span>{metric.label}</span></div>)}</section>
-        <section className="section" id="results"><div className="section-heading"><p className="eyebrow">Learner Proof</p><h2>Real Transformations, Real Careers</h2><p>Hear how ambitious professionals shifted from hesitating mid-sentence to commanding meetings.</p></div><div className="three-col testimonials"><article><b>CEFR: B1 ➔ C1 Level</b><p>“FluentAI cured my imposter syndrome before standups. I went from hesitant one-word answers to leading multi-team architecture sprint reviews.”</p><strong>Marco S.</strong><small>Senior Tech Lead · Berlin Hub</small></article><article><b>IELTS 6.5 ➔ Band 8.5</b><p>“The IELTS examiner simulator gave me exact Band 8.0 predictions before my official exam. Scored an overall 8.5!”</p><strong>Aiko T.</strong><small>Medical Researcher · Tokyo</small></article><article><b>Promoted to VP</b><p>“Like having an Oxford linguistics professor in your pocket available at 11 PM after work.”</p><strong>Carlos M.</strong><small>Marketing Director · Madrid</small></article></div></section>
-        <section className="section pricing" id="pricing"><div className="section-heading"><p className="eyebrow">Simple Plans</p><h2>Invest in Your Verbal Future</h2><p>Less than the price of a single private tutor session per month.</p><div className="billing"><Button type="text" className={billing === 'monthly' ? 'active' : ''} aria-pressed={billing === 'monthly'} onClick={() => setBilling('monthly')}>Billed Monthly</Button><Button type="text" className={billing === 'annual' ? 'active' : ''} aria-pressed={billing === 'annual'} onClick={() => setBilling('annual')}>Billed Annually <mark>Save 40%</mark></Button></div></div><div className="three-col">{plans.map((plan) => { const price = getPriceView(plan.price, billing); return <article className={`plan ${plan.featured ? 'featured' : ''}`} data-plan={plan.id} key={plan.name}>{plan.featured && <span className="popular">Most Popular Choice</span>}<h3>{plan.name}</h3><p>{plan.description}</p><strong className="price"><span className="price-value">{price.monthly}</span><small>/ month</small></strong><p className="billing" data-billing={plan.id}>{price.billing}</p><ul>{plan.features.map((feature) => <li key={feature}>✓ {feature}</li>)}</ul><Button className="button cta" type="primary" onClick={() => setActivatedPlan(plan.id)}>Start Free 7-Day Trial</Button><p className="cta-status" aria-live="polite">{activatedPlan === plan.id ? 'Trial started locally.' : ''}</p></article>; })}</div><p className="guarantee">◉ 30-Day Unconditional Fluency Guarantee: If your confidence does not dramatically expand, request a full refund.</p></section>
+        <section className="stats" aria-label="Learning metrics">{learningMetrics.map((metric) => <div key={metric.label}><span className="metric-label">{metric.label}</span><b>{metric.value}</b><p>{metric.description}</p></div>)}</section>
+        <section className="section results" id="results" aria-labelledby="results-title">
+          <div className="section-heading"><p className="eyebrow">Learner Proof</p><h2 id="results-title">Real Transformations, Real Careers</h2><p>Hear how ambitious professionals shifted from hesitating mid-sentence to commanding meetings.</p></div>
+          <div className="three-col testimonials">
+            {[
+              { tag: 'CEFR: B1 ➔ C1 Level', color: 'blue', quote: '“FluentAI cured my imposter syndrome before standups. I went from hesitant one-word answers to leading multi-team architecture sprint reviews at our Berlin office with zero anxiety.”', name: 'Marco S.', role: 'Senior Tech Lead · Berlin Hub', portrait: marcoPortrait },
+              { tag: 'IELTS 6.5 ➔ Band 8.5', color: 'green', quote: '“The IELTS examiner simulator gave me exact Band 8.0 predictions before my official exam. Scored an overall 8.5 last weekend! The instant feedback on transition words made all the difference.”', name: 'Aiko T.', role: 'Medical Researcher · Tokyo', portrait: aikoPortrait },
+              { tag: 'Promoted to VP', color: 'blue', quote: '“Like having an Oxford linguistics professor in your pocket available at 11 PM after work. It caught every recurring habit I had with irregular verbs within just 3 days.”', name: 'Carlos M.', role: 'Marketing Director · Madrid', portrait: carlosPortrait },
+            ].map((story) => <article key={story.name}>
+              <div className="testimonial-heading"><Tag color={story.color}>{story.tag}</Tag><span className="testimonial-rating" role="img" aria-label="5 out of 5 stars">★★★★★</span></div>
+              <p>{story.quote}</p>
+              <div className="testimonial-author"><img src={story.portrait} alt={story.name} width={36} height={36} /><div><strong>{story.name}</strong><small>{story.role}</small></div></div>
+            </article>)}
+          </div>
+        </section>
+        <section className="section pricing" id="pricing" aria-label="Pricing">
+          <div className="section-heading">
+            <p className="eyebrow">Simple Plans</p>
+            <h2>Invest in Your Verbal Future</h2>
+            <p>Less than the price of a single private tutor session per month. Full speech science stack included.</p>
+            <div className="billing" role="group" aria-label="Billing period">
+              <Button type="text" className={billing === 'monthly' ? 'active' : ''} aria-pressed={billing === 'monthly'} onClick={() => setBilling('monthly')}>Billed Monthly</Button>
+              <Button type="text" className={billing === 'annual' ? 'active' : ''} aria-pressed={billing === 'annual'} onClick={() => setBilling('annual')}>Billed Annually <mark>Save 40%</mark></Button>
+            </div>
+          </div>
+          <div className="three-col">
+            {plans.map((plan) => {
+              const price = getPriceView(plan.price, billing);
+              return <article className={`plan ${plan.featured ? 'featured' : ''}`} data-plan={plan.id} key={plan.id}>
+                {plan.featured && <span className="popular">Most Popular Choice</span>}
+                <div className="plan-title"><h3>{plan.name}</h3>{plan.featured && <span className="ai-features">AI Features</span>}</div>
+                <p className="plan-description">{plan.description}</p>
+                <strong className="price"><span className="price-value">{billing === 'monthly' ? price.monthly.replace('.00', '') : price.monthly}</span><small> / month</small></strong>
+                <p className="billing-detail" data-billing={plan.id}>{billing === 'annual' ? price.billing : ''}</p>
+                <ul>{plan.features.map((feature) => {
+                  const unavailable = plan.id === 'starter' && feature === 'Phonetic accent waveforms';
+                  return <li className={unavailable ? 'unavailable' : ''} key={feature}><span aria-hidden="true">{unavailable ? <CloseOutlined /> : <CheckOutlined />}</span>{feature}{unavailable && <span className="sr-only"> — недоступно</span>}</li>;
+                })}</ul>
+                <Button className="cta" type={plan.featured ? 'primary' : 'default'} onClick={() => setActivatedPlan(plan.id)}>Start Free 7-Day Trial</Button>
+              </article>;
+            })}
+          </div>
+          <p className="guarantee"><SafetyCertificateOutlined aria-hidden="true" /> 30-Day Unconditional Fluency Guarantee: If your confidence does not dramatically expand, request a full refund with 1-click.</p>
+          {activatedPlan && <p className="cta-status" role="status">Локальная демонстрация: выбран тариф {plans.find(plan => plan.id === activatedPlan)?.name}. Подписка не оформлена, списаний нет.</p>}
+        </section>
         <Faq items={faqItems} />
-        <section className="final-cta section" id="final-cta"><div className="section-heading"><p className="eyebrow">Unlock Global Opportunities</p><h2>Your Next Career Milestone Requires Fluent English.</h2><p>Start speaking out loud today without performance anxiety. Your private AI tutor is ready when you are.</p><EmailCapture /></div></section>
+        <section className="final-cta" id="final-cta" aria-labelledby="final-cta-title"><div className="final-cta-card"><div className="section-heading"><p className="eyebrow">Unlock Global Opportunities</p><h2 id="final-cta-title">Your Next Career Milestone Requires Fluent English.</h2><p>Start speaking out loud today without performance anxiety. Your private AI tutor is ready when you are.</p><EmailCapture /><p className="trial-details">No credit card required upfront • Setup takes 90 seconds</p></div></div></section>
       </main><Footer />
       </div>
     </ConfigProvider>
