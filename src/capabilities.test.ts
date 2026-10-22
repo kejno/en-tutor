@@ -17,10 +17,10 @@ describe('capability section configuration', () => {
 
   it('defines the four static metrics in the design order', () => {
     expect(learningMetrics).toEqual([
-      { value: '3.4x', label: 'FLUENCY GAINS' },
-      { value: '87%', label: 'INTERVIEW SUCCESS' },
-      { value: '+1.5', label: 'IELTS BAND JUMP' },
-      { value: '12.4M', label: 'MINUTES PRACTICED' },
+      { value: '3.4x', label: 'FLUENCY GAINS', description: 'Faster than traditional flashcard apps' },
+      { value: '87%', label: 'INTERVIEW SUCCESS', description: 'Passed within 60 days of 15-min practice' },
+      { value: '+1.5', label: 'IELTS BAND JUMP', description: 'Documented across 12,000+ test-takers' },
+      { value: '12.4M', label: 'MINUTES PRACTICED', description: 'Zero embarrassment. 100% private.' },
     ]);
   });
 });

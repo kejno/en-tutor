@@ -21,8 +21,14 @@ test('ET-53: переход к историям, чтение карточек �
   expect(bounds?.height).toBe(538);
   const heading = section.getByRole('heading');
   expect(await heading.evaluate((el) => el.getBoundingClientRect().height)).toBe(38);
+  // Round the crop origin so preceding sections cannot add a screenshot row.
+  const scrollY = await page.evaluate(() => window.scrollY);
+  const sectionImage = await page.screenshot({
+    animations: 'disabled', fullPage: true,
+    clip: { x: 0, y: Math.round(bounds!.y + scrollY), width: 1280, height: 538 },
+  });
   // Baseline is a crop of the supplied Figma reference, resized from 935px to 1280px.
-  await expect(section).toHaveScreenshot('results-reference.png', { animations: 'disabled', threshold: 0.25, maxDiffPixelRatio: 0.04 });
+  expect(sectionImage).toMatchSnapshot('results-reference.png', { threshold: 0.25, maxDiffPixelRatio: 0.04 });
   // Reviewed against that reference; the strict baseline catches small future changes.
-  await expect(section).toHaveScreenshot('results-verified.png', { animations: 'disabled', maxDiffPixels: 100 });
+  expect(sectionImage).toMatchSnapshot('results-verified.png', { maxDiffPixels: 100 });
 });

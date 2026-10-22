@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, ConfigProvider, Progress, Tag } from 'antd';
+import { CheckOutlined, CloseOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { EmailCapture } from './components/EmailCapture';
 import { Faq } from './components/Faq';
 import { Footer } from './components/Footer';
@@ -13,12 +14,17 @@ import aikoPortrait from './assets/testimonials/aiko.png';
 import carlosPortrait from './assets/testimonials/carlos.png';
 
 const plans = [
-  { id: 'starter', name: 'Starter', price: 14, description: 'Perfect for casual learners building daily habits.', features: ['15 mins daily voice conversation', 'Standard grammar correction', '100+ basic roleplay scenarios'] },
-  { id: 'pro', name: 'Pro Fluency', price: 24, description: 'For professionals, expats, and exam candidates.', features: ['Unlimited voice conversation minutes', 'Phonetic Accent Tuner & Mouth Shapes', 'IELTS Speaking Examiner Simulator', 'Executive & Tech Business tracks'], featured: true },
-  { id: 'executive', name: 'Executive 1-on-1 AI+', price: 49, description: 'For founders, diplomats, and senior executives.', features: ['Everything in Pro Fluency', 'Monthly human linguist accent audit', 'Custom corporate scenarios uploaded'] },
+  { id: 'starter', name: 'Starter', price: 14, description: 'Perfect for casual learners building daily habits.', features: ['15 mins daily voice conversation', 'Standard grammar correction', '100+ basic roleplay scenarios', 'Phonetic accent waveforms'] },
+  { id: 'pro', name: 'Pro Fluency', price: 24, description: 'For professionals, expats, and exam candidates.', features: ['Unlimited voice conversation minutes', 'Phonetic Accent Tuner & Mouth Shapes', 'IELTS Speaking Examiner Simulator', 'Executive & Tech Business tracks', 'Ultra-low latency audio (<300ms)'], featured: true },
+  { id: 'executive', name: 'Executive 1-on-1 AI+', price: 49, description: 'For founders, diplomats, and senior executives.', features: ['Everything in Pro Fluency', 'Monthly human linguist accent audit', 'Custom corporate scenarios uploaded', 'VIP Priority Voice Infrastructure'] },
 ];
 
 const faqItems = [
+  {
+    id: 'comparison',
+    question: 'Is an AI tutor genuinely better than a human tutor?',
+    answer: 'Демо показывает, как FluentAI помогает практиковать английскую речь и получать обратную связь. Это демонстрация возможностей продукта, а не утверждение о превосходстве ИИ-репетитора над человеческим репетитором.',
+  },
   {
     id: 'trial',
     question: 'How does the 7-day free trial work?',
@@ -128,7 +134,7 @@ function AssessmentPreview() {
 }
 
 function App() {
-  const [billing, setBilling] = useState<BillingPeriod>('annual');
+  const [billing, setBilling] = useState<BillingPeriod>('monthly');
   const [activatedPlan, setActivatedPlan] = useState<string | null>(null);
   const [trialNotice, setTrialNotice] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState('business');
@@ -147,7 +153,7 @@ function App() {
         <section className="section" id="methodology"><div className="section-heading"><p className="eyebrow">Neuro-Linguistic Engine</p><h2>The 3-Step Rapid Fluency Method</h2><p>Built without intimidating multiple-choice drills. You speak out loud from minute one with progressive cognitive difficulty.</p></div><div className="three-col">{methodologySteps.map((step) => <article className="feature-card" key={step.number}><span className="number">{step.number}</span><h3>{step.title}</h3><p>{step.description}</p><small>{step.metricLabel} <strong>{step.metricValue}</strong></small></article>)}</div></section>
         <section className="section muted" id="paths"><div className="paths-heading"><div><p className="eyebrow">Targeted Tracks</p><h2>Tailored to What You Actually Say</h2></div><p>Don't waste time reciting arbitrary fruit names. Choose the exact conversational track you need for your career or life milestone.</p></div><div className="pill-row" role="group" aria-label="Learning topics">{learningTopics.map((topic) => <button type="button" className={`topic-tag ${selectedTopic === topic.id ? 'active' : ''}`} aria-pressed={selectedTopic === topic.id} data-testid="topic-tag" key={topic.id} onClick={() => setSelectedTopic(topic.id)}>{topic.label}</button>)}</div><div className="split-card"><div className="roleplay-panel"><small>{topicCard.recommendation}</small><h3>{topicCard.label}: {topicCard.title}</h3><p>{topicCard.description}</p><div className="roleplay-scenario"><small>ACTIVE ROLEPLAY SCENARIO</small><p>{topicCard.scenario}</p></div><ul>{topicCard.benefits.map((benefit) => <li key={benefit}>✓ {benefit}</li>)}</ul></div><div className="progress-panel"><div className="progress-header"><span>Target Vocabulary Focus</span><small>Module 4 of 12</small></div>{topicCard.vocabulary.map((item) => <div className="vocabulary-item" key={item.term}><span><b>{item.term}</b><small>{item.description}</small></span><em>{item.status}</em></div>)}<div className="readiness"><span>{topicCard.readinessLabel}</span><strong>{topicCard.readiness}%</strong></div><Progress percent={topicCard.readiness} showInfo={false} /></div></div></section>
         <section className="section" aria-labelledby="capabilities-title" aria-label="Verbal mastery capabilities"><div className="section-heading"><p className="eyebrow">Engineered For Ease</p><h2 id="capabilities-title">Everything You Need for Verbal Mastery</h2><p>Built around speech science, eliminating the friction that keeps learners trapped in passive grammar study.</p></div><div className="four-grid">{capabilityCards.map((card) => <article key={card.title}><span className="icon" aria-hidden="true">{card.icon}</span><h3>{card.title}</h3><p>{card.description}</p>{card.sampleMessage && <blockquote>{card.sampleMessage}</blockquote>}{card.miniGraph && <div className="mini-graph" aria-label="Accent matching waveform"><svg viewBox="0 0 68 22" role="img" aria-hidden="true"><path d={card.miniGraph} /></svg></div>}{card.tags && <div className="capability-tags">{card.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}{card.indicator && <strong>{card.indicator}</strong>}</article>)}</div></section>
-        <section className="stats" aria-label="Learning metrics">{learningMetrics.map((metric) => <div key={metric.label}><b>{metric.value}</b><span>{metric.label}</span></div>)}</section>
+        <section className="stats" aria-label="Learning metrics">{learningMetrics.map((metric) => <div key={metric.label}><span className="metric-label">{metric.label}</span><b>{metric.value}</b><p>{metric.description}</p></div>)}</section>
         <section className="section results" id="results" aria-labelledby="results-title">
           <div className="section-heading"><p className="eyebrow">Learner Proof</p><h2 id="results-title">Real Transformations, Real Careers</h2><p>Hear how ambitious professionals shifted from hesitating mid-sentence to commanding meetings.</p></div>
           <div className="three-col testimonials">
@@ -162,9 +168,38 @@ function App() {
             </article>)}
           </div>
         </section>
-        <section className="section pricing" id="pricing"><div className="section-heading"><p className="eyebrow">Simple Plans</p><h2>Invest in Your Verbal Future</h2><p>Less than the price of a single private tutor session per month.</p><div className="billing"><Button type="text" className={billing === 'monthly' ? 'active' : ''} aria-pressed={billing === 'monthly'} onClick={() => setBilling('monthly')}>Billed Monthly</Button><Button type="text" className={billing === 'annual' ? 'active' : ''} aria-pressed={billing === 'annual'} onClick={() => setBilling('annual')}>Billed Annually <mark>Save 40%</mark></Button></div></div><div className="three-col">{plans.map((plan) => { const price = getPriceView(plan.price, billing); return <article className={`plan ${plan.featured ? 'featured' : ''}`} data-plan={plan.id} key={plan.name}>{plan.featured && <span className="popular">Most Popular Choice</span>}<h3>{plan.name}</h3><p>{plan.description}</p><strong className="price"><span className="price-value">{price.monthly}</span><small>/ month</small></strong><p className="billing" data-billing={plan.id}>{price.billing}</p><ul>{plan.features.map((feature) => <li key={feature}>✓ {feature}</li>)}</ul><Button className="button cta" type="primary" onClick={() => setActivatedPlan(plan.id)}>Start Free 7-Day Trial</Button><p className="cta-status" aria-live="polite">{activatedPlan === plan.id ? 'Trial started locally.' : ''}</p></article>; })}</div><p className="guarantee">◉ 30-Day Unconditional Fluency Guarantee: If your confidence does not dramatically expand, request a full refund.</p></section>
+        <section className="section pricing" id="pricing" aria-label="Pricing">
+          <div className="section-heading">
+            <p className="eyebrow">Simple Plans</p>
+            <h2>Invest in Your Verbal Future</h2>
+            <p>Less than the price of a single private tutor session per month. Full speech science stack included.</p>
+            <div className="billing" role="group" aria-label="Billing period">
+              <Button type="text" className={billing === 'monthly' ? 'active' : ''} aria-pressed={billing === 'monthly'} onClick={() => setBilling('monthly')}>Billed Monthly</Button>
+              <Button type="text" className={billing === 'annual' ? 'active' : ''} aria-pressed={billing === 'annual'} onClick={() => setBilling('annual')}>Billed Annually <mark>Save 40%</mark></Button>
+            </div>
+          </div>
+          <div className="three-col">
+            {plans.map((plan) => {
+              const price = getPriceView(plan.price, billing);
+              return <article className={`plan ${plan.featured ? 'featured' : ''}`} data-plan={plan.id} key={plan.id}>
+                {plan.featured && <span className="popular">Most Popular Choice</span>}
+                <div className="plan-title"><h3>{plan.name}</h3>{plan.featured && <span className="ai-features">AI Features</span>}</div>
+                <p className="plan-description">{plan.description}</p>
+                <strong className="price"><span className="price-value">{billing === 'monthly' ? price.monthly.replace('.00', '') : price.monthly}</span><small> / month</small></strong>
+                <p className="billing-detail" data-billing={plan.id}>{billing === 'annual' ? price.billing : ''}</p>
+                <ul>{plan.features.map((feature) => {
+                  const unavailable = plan.id === 'starter' && feature === 'Phonetic accent waveforms';
+                  return <li className={unavailable ? 'unavailable' : ''} key={feature}><span aria-hidden="true">{unavailable ? <CloseOutlined /> : <CheckOutlined />}</span>{feature}{unavailable && <span className="sr-only"> — недоступно</span>}</li>;
+                })}</ul>
+                <Button className="cta" type={plan.featured ? 'primary' : 'default'} onClick={() => setActivatedPlan(plan.id)}>Start Free 7-Day Trial</Button>
+              </article>;
+            })}
+          </div>
+          <p className="guarantee"><SafetyCertificateOutlined aria-hidden="true" /> 30-Day Unconditional Fluency Guarantee: If your confidence does not dramatically expand, request a full refund with 1-click.</p>
+          {activatedPlan && <p className="cta-status" role="status">Локальная демонстрация: выбран тариф {plans.find(plan => plan.id === activatedPlan)?.name}. Подписка не оформлена, списаний нет.</p>}
+        </section>
         <Faq items={faqItems} />
-        <section className="final-cta section" id="final-cta"><div className="section-heading"><p className="eyebrow">Unlock Global Opportunities</p><h2>Your Next Career Milestone Requires Fluent English.</h2><p>Start speaking out loud today without performance anxiety. Your private AI tutor is ready when you are.</p><EmailCapture /></div></section>
+        <section className="final-cta" id="final-cta" aria-labelledby="final-cta-title"><div className="final-cta-card"><div className="section-heading"><p className="eyebrow">Unlock Global Opportunities</p><h2 id="final-cta-title">Your Next Career Milestone Requires Fluent English.</h2><p>Start speaking out loud today without performance anxiety. Your private AI tutor is ready when you are.</p><EmailCapture /><p className="trial-details">No credit card required upfront • Setup takes 90 seconds</p></div></div></section>
       </main><Footer />
       </div>
     </ConfigProvider>
