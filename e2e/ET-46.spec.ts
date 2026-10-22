@@ -23,9 +23,28 @@ test('ET-46: действия hero и вертикальное располож�
   await expect.poll(async () => (await coach.boundingBox())!.y).toBeGreaterThanOrEqual(65);
 });
 
+test('ET-46: общая строка Emma находится над обеими панелями', async ({ page }) => {
+  await page.goto('/');
+  const card = page.getByTestId('assessment-card');
+  const heading = await card.getByRole('heading', { name: 'Emma · AI Native Coach' }).boundingBox();
+  const messages = await card.getByTestId('conversation-message').first().boundingBox();
+  const score = await card.getByTestId('assessment-score').boundingBox();
+  expect(heading).not.toBeNull();
+  expect(messages).not.toBeNull();
+  expect(score).not.toBeNull();
+  expect(score!.y).toBeGreaterThanOrEqual(messages!.y);
+  expect(heading!.y + heading!.height).toBeLessThan(messages!.y);
+  const divider = await card.locator('.conversation-panel').boundingBox();
+  expect(divider!.y).toBeGreaterThan(heading!.y + heading!.height);
+});
+
 test('ET-46: hero соответствует crop приложенного эталона', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => document.fonts.ready);
+  const bounds = await page.locator('.hero').boundingBox();
+  await page.addStyleTag({ content: '.site-header { visibility: hidden; } html { scroll-behavior: auto; }' });
+  await expect(page.locator('.site-header')).toBeHidden();
+  expect(await page.locator('.hero').boundingBox()).toEqual(bounds);
   // The committed image is the first 959.875 design pixels of reference-2-3.png,
   // scaled from 935px to 1280px with Chromium canvas. It is never an app capture.
   // Strict provisional tolerance: do not increase it to hide design differences.
@@ -35,6 +54,5 @@ test('ET-46: hero соответствует crop приложенного эт�
     scale: 'css',
     threshold: 0.1,
     maxDiffPixelRatio: 0.001,
-    style: '.site-header { visibility: hidden; } html { scroll-behavior: auto; }',
   });
 });
