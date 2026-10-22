@@ -46,5 +46,12 @@ test('ET-48: полоса после первого экрана соответ�
     await expect(name).toHaveCSS('line-height', '21px');
   }
   await expect(strip.locator('a, button, input')).toHaveCount(0);
-  await expect(strip).toHaveScreenshot('trust-strip.png', { animations: 'disabled', maxDiffPixels: 200 });
+  // Round the crop origin so preceding sections cannot add a screenshot row.
+  const bounds = await strip.boundingBox();
+  const scrollY = await page.evaluate(() => window.scrollY);
+  const image = await page.screenshot({
+    animations: 'disabled', fullPage: true,
+    clip: { x: Math.round(bounds!.x), y: Math.round(bounds!.y + scrollY), width: bounds!.width, height: bounds!.height },
+  });
+  expect(image).toMatchSnapshot('trust-strip.png', { maxDiffPixels: 200 });
 });

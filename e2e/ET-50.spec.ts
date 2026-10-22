@@ -56,5 +56,12 @@ test('ET-50: desktop-секция соответствует исходному 
     return pixels[1].reduce((sum, value, index) => sum + (index % 4 === 3 ? 0 : Math.abs(value - pixels[0][index])), 0) / (128 * 67 * 3);
   }, { actualUrl: `data:image/png;base64,${actual.toString('base64')}`, referenceUrl: `data:image/png;base64,${reference.toString('base64')}` });
   expect(error).toBeLessThan(4);
-  await expect(section).toHaveScreenshot('learning-paths.png', { animations: 'disabled', maxDiffPixelRatio: 0.005 });
+  // Round the crop origin so preceding sections cannot add a screenshot row.
+  const bounds = await section.boundingBox();
+  const scrollY = await page.evaluate(() => window.scrollY);
+  const image = await page.screenshot({
+    animations: 'disabled', fullPage: true,
+    clip: { x: Math.round(bounds!.x), y: Math.round(bounds!.y + scrollY), width: bounds!.width, height: bounds!.height },
+  });
+  expect(image).toMatchSnapshot('learning-paths.png', { maxDiffPixelRatio: 0.005 });
 });
