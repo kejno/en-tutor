@@ -11,10 +11,10 @@ test('ET-41: четыре карточки речевой практики по�
   await expect(cards.nth(0)).toContainText('Zero-Judgment Conversational Haven');
   await expect(cards.nth(0).locator('blockquote')).toContainText('French accent');
   await expect(cards.nth(1)).toContainText('Phonetic Accent Tuner');
-  await expect(cards.nth(1).locator('.mini-graph svg')).toBeVisible();
+  await expect(cards.nth(1).getByRole('figure', { name: 'Пример визуализации произношения' })).toBeVisible();
   await expect(cards.nth(1)).toContainText('Match: 95%');
   await expect(cards.nth(2)).toContainText('1,200+ Roleplay Scenarios');
-  await expect(cards.nth(2).locator('.capability-tags span')).toHaveText(['Coffee Shop', 'VC Pitch', 'French Interview']);
+  await expect(cards.nth(2).locator('.capability-tags span')).toHaveText(['Coffee Shop', 'VC Seed Pitch', 'Emergency Room', '+ Custom Prompt']);
   await expect(cards.nth(3)).toContainText('Adaptive Persistent Memory');
   await expect(cards.nth(3)).toContainText('Auto-synced');
 });
