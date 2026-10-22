@@ -8,17 +8,19 @@ test('BNP-577: период оплаты меняет цены и доступе
   const annual = pricing.getByRole('button', { name: /Billed Annually/ });
   const starter = pricing.locator('[data-plan="starter"]');
 
-  await expect(annual).toHaveAttribute('aria-pressed', 'true');
-  await expect(monthly).toHaveAttribute('aria-pressed', 'false');
-  await expect(starter.locator('.price-value')).toHaveText('$8.40');
+  await expect(annual).toHaveAttribute('aria-pressed', 'false');
+  await expect(monthly).toHaveAttribute('aria-pressed', 'true');
+  await expect(starter.locator('.price-value')).toHaveText('$14');
 
+  await annual.click();
+  await expect(starter.locator('.price-value')).toHaveText('$8.40');
   await monthly.focus();
   await expect(monthly).toBeFocused();
   await monthly.press('Space');
   await expect(monthly).toHaveAttribute('aria-pressed', 'true');
   await expect(annual).toHaveAttribute('aria-pressed', 'false');
-  await expect(starter.locator('.price-value')).toHaveText('$14.00');
-  await expect(starter.locator('[data-billing="starter"]')).toHaveText('в месяц');
+  await expect(starter.locator('.price-value')).toHaveText('$14');
+  await expect(starter.locator('[data-billing="starter"]')).toBeEmpty();
 
   const ctas = pricing.getByRole('button', { name: 'Start Free 7-Day Trial' });
   await expect(ctas).toHaveCount(3);
@@ -26,5 +28,5 @@ test('BNP-577: период оплаты меняет цены и доступе
   await ctas.first().focus();
   await expect(ctas.first()).toBeFocused();
   await ctas.first().press('Enter');
-  await expect(starter.locator('.cta-status')).toHaveText('Trial started locally.');
+  await expect(pricing.getByRole('status')).toContainText('Подписка не оформлена, списаний нет.');
 });

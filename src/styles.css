@@ -9,6 +9,38 @@
 @media(max-width:480px){.section{padding-left:16px;padding-right:16px}.topic-tag{font-size:10px}.feature-card h3{font-size:15px}}
 @media(max-width:800px){.site-header>nav{display:none}.mobile-navigation{display:block;position:relative}.mobile-navigation summary{cursor:pointer;list-style:none;font-size:20px}.mobile-navigation summary::-webkit-details-marker{display:none}.site-header .mobile-navigation-links{display:flex;position:absolute;right:0;top:28px;z-index:4;width:220px;padding:10px 16px;background:#fff;border:1px solid #eee;box-shadow:0 8px 20px #0001}.mobile-navigation-links a{padding:10px 0}.header-actions>a:first-child{display:none}}
 
+/* Pricing measurements follow the supplied 1280 × 758 reference section. */
+.pricing{background:#fafafa;font-family:Arial,sans-serif;padding:64px max(32px,calc((100% - 1152px)/2));min-height:758px;position:relative}
+.pricing .section-heading{max-width:600px;margin:0 auto 40px}
+.pricing .eyebrow{display:inline-block;background:#e6f4ff;border:1px solid #91caff;border-radius:4px;color:#1677ff;font-size:12px;line-height:20px;font-weight:400;letter-spacing:0;text-transform:none;margin:0 0 12px;padding:0 10px;vertical-align:top}
+.pricing .section-heading h2{font-size:30px;line-height:34px;letter-spacing:-1px;margin:0 0 12px}
+.pricing .section-heading>p:last-of-type{font-size:14px;line-height:20px;margin:0 auto 20px;color:#8c8c8c}
+.pricing .billing{background:#eee;border:0;padding:4px;height:34px;align-items:center}
+.pricing .billing button{font-family:Arial,sans-serif;height:26px;padding:4px 12px;font-size:12px;color:#8c8c8c;line-height:18px}
+.pricing .billing button.active{color:#262626}
+.pricing .billing mark{background:none;color:#52c41a;font-size:12px}
+.pricing .three-col{gap:24px}
+.pricing .plan{border:1px solid #f0f0f0;border-radius:8px;padding:24px;min-height:366px;box-shadow:0 2px 4px #00000004}
+.pricing .plan.featured{border:2px solid #1677ff;padding:23px;box-shadow:0 8px 20px #0000001a}
+.pricing .plan-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pricing h3{font-size:16px;line-height:22px;margin:0;font-weight:600}
+.pricing .ai-features{background:#e6f4ff;border:1px solid #91caff;color:#1677ff;font-size:10px;line-height:16px;padding:0 5px;white-space:nowrap}
+.pricing .plan-description{font-size:12px;line-height:18px;margin:4px 0 0;white-space:nowrap;color:#8c8c8c}
+.pricing .price{font-size:30px;line-height:38px;margin:16px 0 0;font-weight:600;letter-spacing:-1px;display:flex;align-items:baseline;gap:2px;height:38px}
+.pricing .price small{font-size:12px;letter-spacing:0;color:#8c8c8c;line-height:18px}
+.pricing .billing-detail{font-size:11px;line-height:16px;height:16px;margin:0;color:#8c8c8c}
+.pricing .plan ul{border-top:1px solid #f0f0f0;margin:0 0 17px;padding:20px 0 0;font-size:12px;line-height:26px;color:#262626}
+.pricing .plan li{display:flex;gap:8px;align-items:baseline}
+.pricing .plan li>span:first-child{color:#1677ff}
+.pricing .plan li.unavailable,.pricing .plan li.unavailable>span:first-child{color:#8c8c8c}
+.pricing .cta{width:100%;height:34px;margin-top:auto;border-radius:5px;font-size:12px;box-shadow:0 2px 0 #00000004}
+.pricing .cta.ant-btn-primary{background:#1677ff}
+.pricing .popular{background:#1677ff;border-radius:14px;font-size:10px;line-height:20px;padding:0 12px;top:0;transform:translate(-50%,-55%);white-space:nowrap}
+.pricing .guarantee{font-size:12px;line-height:20px;margin:27px 0 0;color:#8c8c8c}
+.pricing .guarantee>span{color:#52c41a;margin-right:6px}
+.pricing .cta-status{font-size:12px;text-align:center;margin:12px 0 0;color:#262626}
+@media(max-width:800px){.pricing .plan-description{white-space:normal}.pricing .three-col{gap:24px}.pricing .plan{min-height:366px}}
+.pricing .plan li .anticon{font-size:12px}
 .faq.section{max-width:none;min-height:452px;padding:60px 24px 68px;background:#fff;text-align:center;font-family:Arial,sans-serif}
 .faq .eyebrow{display:table;margin:0 auto 12px;padding:2px 8px;border:1px solid #91caff;border-radius:4px;background:#e6f4ff;color:#1677ff;font-size:12px;font-weight:400;letter-spacing:0;line-height:20px;text-transform:none}
 .faq h2{margin:0 0 36px;font-size:30px;font-weight:600;line-height:36px;letter-spacing:-.75px}
