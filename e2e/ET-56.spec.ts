@@ -16,12 +16,13 @@ test('ET-56: final offer follows the supplied reference', async ({ page }) => {
   await expect(section.locator('.final-cta-card')).toHaveCSS('border-top-color', 'rgb(22, 119, 255)');
   const bounds = await section.boundingBox();
   const scrollY = await page.evaluate(() => window.scrollY);
-  expect(await page.screenshot({
+  const sectionImage = await page.screenshot({
     animations: 'disabled', fullPage: true,
     clip: { x: 0, y: Math.round(bounds!.y + scrollY), width: 1280, height: 483 },
-  })).toMatchSnapshot('final-cta-reference.png', { threshold: 0.2, maxDiffPixelRatio: 0.025 });
+  });
+  expect(sectionImage).toMatchSnapshot('final-cta-reference.png', { threshold: 0.2, maxDiffPixelRatio: 0.025 });
   // Keep a strict browser baseline as well, after checking against the supplied design.
-  await expect(section).toHaveScreenshot('final-cta-approved.png', { animations: 'disabled', maxDiffPixelRatio: 0.001 });
+  expect(sectionImage).toMatchSnapshot('final-cta-approved.png', { maxDiffPixelRatio: 0.001 });
 });
 
 test('ET-56: email correction and local confirmation require no navigation or API', async ({ page }) => {

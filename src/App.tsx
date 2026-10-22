@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, ConfigProvider, Progress } from 'antd';
+import { Button, ConfigProvider, Progress, Tag } from 'antd';
 import { CheckOutlined, CloseOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { EmailCapture } from './components/EmailCapture';
 import { Faq } from './components/Faq';
@@ -9,6 +9,9 @@ import { capabilityCards, learningMetrics } from './capabilities';
 import { learningTopics, methodologySteps } from './methodology';
 import { getPriceView, type BillingPeriod } from './pricing';
 import './styles.css';
+import marcoPortrait from './assets/testimonials/marco.png';
+import aikoPortrait from './assets/testimonials/aiko.png';
+import carlosPortrait from './assets/testimonials/carlos.png';
 
 const plans = [
   { id: 'starter', name: 'Starter', price: 14, description: 'Perfect for casual learners building daily habits.', features: ['15 mins daily voice conversation', 'Standard grammar correction', '100+ basic roleplay scenarios', 'Phonetic accent waveforms'] },
@@ -151,7 +154,20 @@ function App() {
         <section className="section muted" id="paths"><div className="paths-heading"><div><p className="eyebrow">Targeted Tracks</p><h2>Tailored to What You Actually Say</h2></div><p>Don't waste time reciting arbitrary fruit names. Choose the exact conversational track you need for your career or life milestone.</p></div><div className="pill-row" role="group" aria-label="Learning topics">{learningTopics.map((topic) => <button type="button" className={`topic-tag ${selectedTopic === topic.id ? 'active' : ''}`} aria-pressed={selectedTopic === topic.id} data-testid="topic-tag" key={topic.id} onClick={() => setSelectedTopic(topic.id)}>{topic.label}</button>)}</div><div className="split-card"><div className="roleplay-panel"><small>{topicCard.recommendation}</small><h3>{topicCard.label}: {topicCard.title}</h3><p>{topicCard.description}</p><div className="roleplay-scenario"><small>ACTIVE ROLEPLAY SCENARIO</small><p>{topicCard.scenario}</p></div><ul>{topicCard.benefits.map((benefit) => <li key={benefit}>✓ {benefit}</li>)}</ul></div><div className="progress-panel"><div className="progress-header"><span>Target Vocabulary Focus</span><small>Module 4 of 12</small></div>{topicCard.vocabulary.map((item) => <div className="vocabulary-item" key={item.term}><span><b>{item.term}</b><small>{item.description}</small></span><em>{item.status}</em></div>)}<div className="readiness"><span>{topicCard.readinessLabel}</span><strong>{topicCard.readiness}%</strong></div><Progress percent={topicCard.readiness} showInfo={false} /></div></div></section>
         <section className="section" aria-labelledby="capabilities-title" aria-label="Verbal mastery capabilities"><div className="section-heading"><p className="eyebrow">Engineered For Ease</p><h2 id="capabilities-title">Everything You Need for Verbal Mastery</h2><p>Built around speech science, eliminating the friction that keeps learners trapped in passive grammar study.</p></div><div className="four-grid">{capabilityCards.map((card) => <article key={card.title}><span className="icon" aria-hidden="true">{card.icon}</span><h3>{card.title}</h3><p>{card.description}</p>{card.sampleMessage && <blockquote>{card.sampleMessage}</blockquote>}{card.miniGraph && <div className="mini-graph" aria-label="Accent matching waveform"><svg viewBox="0 0 68 22" role="img" aria-hidden="true"><path d={card.miniGraph} /></svg></div>}{card.tags && <div className="capability-tags">{card.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>}{card.indicator && <strong>{card.indicator}</strong>}</article>)}</div></section>
         <section className="stats" aria-label="Learning metrics">{learningMetrics.map((metric) => <div key={metric.label}><span className="metric-label">{metric.label}</span><b>{metric.value}</b><p>{metric.description}</p></div>)}</section>
-        <section className="section" id="results"><div className="section-heading"><p className="eyebrow">Learner Proof</p><h2>Real Transformations, Real Careers</h2><p>Hear how ambitious professionals shifted from hesitating mid-sentence to commanding meetings.</p></div><div className="three-col testimonials"><article><b>CEFR: B1 ➔ C1 Level</b><p>“FluentAI cured my imposter syndrome before standups. I went from hesitant one-word answers to leading multi-team architecture sprint reviews.”</p><strong>Marco S.</strong><small>Senior Tech Lead · Berlin Hub</small></article><article><b>IELTS 6.5 ➔ Band 8.5</b><p>“The IELTS examiner simulator gave me exact Band 8.0 predictions before my official exam. Scored an overall 8.5!”</p><strong>Aiko T.</strong><small>Medical Researcher · Tokyo</small></article><article><b>Promoted to VP</b><p>“Like having an Oxford linguistics professor in your pocket available at 11 PM after work.”</p><strong>Carlos M.</strong><small>Marketing Director · Madrid</small></article></div></section>
+        <section className="section results" id="results" aria-labelledby="results-title">
+          <div className="section-heading"><p className="eyebrow">Learner Proof</p><h2 id="results-title">Real Transformations, Real Careers</h2><p>Hear how ambitious professionals shifted from hesitating mid-sentence to commanding meetings.</p></div>
+          <div className="three-col testimonials">
+            {[
+              { tag: 'CEFR: B1 ➔ C1 Level', color: 'blue', quote: '“FluentAI cured my imposter syndrome before standups. I went from hesitant one-word answers to leading multi-team architecture sprint reviews at our Berlin office with zero anxiety.”', name: 'Marco S.', role: 'Senior Tech Lead · Berlin Hub', portrait: marcoPortrait },
+              { tag: 'IELTS 6.5 ➔ Band 8.5', color: 'green', quote: '“The IELTS examiner simulator gave me exact Band 8.0 predictions before my official exam. Scored an overall 8.5 last weekend! The instant feedback on transition words made all the difference.”', name: 'Aiko T.', role: 'Medical Researcher · Tokyo', portrait: aikoPortrait },
+              { tag: 'Promoted to VP', color: 'blue', quote: '“Like having an Oxford linguistics professor in your pocket available at 11 PM after work. It caught every recurring habit I had with irregular verbs within just 3 days.”', name: 'Carlos M.', role: 'Marketing Director · Madrid', portrait: carlosPortrait },
+            ].map((story) => <article key={story.name}>
+              <div className="testimonial-heading"><Tag color={story.color}>{story.tag}</Tag><span className="testimonial-rating" role="img" aria-label="5 out of 5 stars">★★★★★</span></div>
+              <p>{story.quote}</p>
+              <div className="testimonial-author"><img src={story.portrait} alt={story.name} width={36} height={36} /><div><strong>{story.name}</strong><small>{story.role}</small></div></div>
+            </article>)}
+          </div>
+        </section>
         <section className="section pricing" id="pricing" aria-label="Pricing">
           <div className="section-heading">
             <p className="eyebrow">Simple Plans</p>
